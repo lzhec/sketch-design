@@ -1,0 +1,31 @@
+@import 'core/variables';
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$bg-color-10: app-color(bg-color, 0.1);
+$border-color-25: app-color(border-color, 0.25);
+
+.mat-list {
+  &::-webkit-scrollbar {
+    width: $scrollbar-size;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: $border-color-25;
+  }
+
+  .mat-list-item {
+    @include control-body-2-font-styles();
+    color: $text-color;
+
+    &.mat-active {
+      color: $text-color !important;
+      background-color: $bg-color-10;
+    }
+
+    &:hover {
+      background-color: $bg-color-10;
+    }
+  }
+}

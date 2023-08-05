@@ -1,0 +1,21 @@
+// core
+@import 'core/variables';
+@import 'core/animations';
+@import 'core/base';
+@import 'core/page-container';
+@import 'core/spacing';
+
+// typography
+@import 'typography/typography';
+
+// common styles
+@import 'common';
+
+// material
+@import 'material';
+
+// ng-select
+// @import '~@ng-select/ng-select/themes/material.theme.css';
+
+// theming
+@import 'theming/themes';

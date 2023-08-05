@@ -1,0 +1,92 @@
+// screen sizes media query mixins
+
+@mixin xxs_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width: 480px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 480px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (max-width: 480px),
+    screen and (min-device-pixel-ratio: 1.5) and (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin xs_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (min-width: 481px) and (max-width: 767px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (min-width: 481px) and (max-width: 767px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (min-width: 481px) and (max-width: 767px),
+    screen and (min-device-pixel-ratio: 1.5) and (min-width: 481px) and (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin s_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (min-width: 768px) and (max-width: 1024px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (min-width: 768px) and (max-width: 1024px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (min-width: 768px) and (max-width: 1024px),
+    screen and (min-device-pixel-ratio: 1.5) and (min-width: 768px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin m_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (min-width: 1025px) and (max-width: 1241px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (min-width: 1025px) and (max-width: 1241px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (min-width: 1025px) and (max-width: 1241px),
+    screen and (min-device-pixel-ratio: 1.5) and (min-width: 1025px) and (max-width: 1241px) {
+    @content;
+  }
+}
+
+@mixin l_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (min-width: 1242px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (min-width: 1242px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (min-width: 1242px),
+    screen and (min-device-pixel-ratio: 1.5) and (min-width: 1242px) {
+    @content;
+  }
+}
+
+// combined screen sizes
+@mixin less_then_xs_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width: 480px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 480px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (max-width: 480px),
+    screen and (min-device-pixel-ratio: 1.5) and (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin less_then_s_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width: 767px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 767px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (max-width: 767px),
+    screen and (min-device-pixel-ratio: 1.5) and (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin more_then_m_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (min-width: 1025px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (min-width: 1025px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (min-width: 1025px),
+    screen and (min-device-pixel-ratio: 1.5) and (min-width: 1025px) {
+    @content;
+  }
+}
+
+@mixin less_then_m_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width: 1024px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 1024px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (max-width: 1024px),
+    screen and (min-device-pixel-ratio: 1.5) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin less_then_l_screen() {
+  @media screen and (-webkit-min-device-pixel-ratio: 1) and (max-width: 1241px),
+    screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 1241px),
+    screen and (min--moz-device-pixel-ratio: 1.5) and (max-width: 1241px),
+    screen and (min-device-pixel-ratio: 1.5) and (max-width: 1241px) {
+    @content;
+  }
+}

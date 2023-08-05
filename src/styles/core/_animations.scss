@@ -1,0 +1,17 @@
+.app-blink-animation {
+  animation: app-blink-anim 1s linear infinite;
+}
+
+@keyframes app-blink-anim {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}

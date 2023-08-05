@@ -1,0 +1,206 @@
+@use 'sass:map';
+
+@import 'font-variables';
+
+@mixin _set-font-styles(
+  $font-style,
+  $font-weight,
+  $font-size,
+  $line-height,
+  $letter-spacing,
+  $text-transform
+) {
+  font-family: $font-family;
+  font-style: $font-style;
+  font-weight: $font-weight;
+  font-size: $font-size;
+  line-height: $line-height;
+
+  letter-spacing: $letter-spacing;
+  text-transform: $text-transform;
+}
+
+@mixin inherit-font-styles() {
+  font-family: $font-family;
+  font-style: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+
+// headings
+
+@mixin heading-1-font-styles() {
+  @include _set-font-styles(normal, bold, 28px, 33px, 0.4px, capitalize);
+}
+
+@mixin heading-2-font-styles() {
+  @include _set-font-styles(normal, bold, 20px, 33px, 0.8px, capitalize);
+}
+
+@mixin heading-3-font-styles() {
+  @include _set-font-styles(normal, bold, 16px, 20px, 0.2px, capitalize);
+}
+
+@mixin heading-4-font-styles() {
+  @include _set-font-styles(normal, bold, 14px, 16px, 0.2px, capitalize);
+}
+
+@mixin heading-1-special-font-styles() {
+  @include _set-font-styles(normal, 500, 50px, 52px, -1px, capitalize);
+}
+
+@mixin heading-2-special-font-styles() {
+  @include _set-font-styles(normal, 500, 32px, 35px, normal, capitalize);
+}
+
+@mixin heading-3-special-font-styles() {
+  @include _set-font-styles(normal, 500, 28px, 30px, normal, capitalize);
+}
+
+@mixin heading-4-special-font-styles() {
+  @include _set-font-styles(normal, 500, 22px, 25px, normal, capitalize);
+}
+
+// subtitles
+
+@mixin subtitle-1-font-styles() {
+  @include _set-font-styles(normal, normal, 16px, 20px, 0.2px, capitalize);
+}
+
+@mixin subtitle-2-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 16px, 0.2px, capitalize);
+}
+
+@mixin subtitle-3-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, 0.1px, capitalize);
+}
+
+@mixin subtitle-4-font-styles() {
+  @include _set-font-styles(normal, normal, 10px, 12px, 0.1px, capitalize);
+}
+
+@mixin subtitle-1-special-font-styles() {
+  @include _set-font-styles(normal, normal, 16px, 20px, 0.2px, none);
+}
+
+@mixin subtitle-2-special-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 16px, 0.2px, none);
+}
+
+@mixin subtitle-3-special-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, 0.1px, none);
+}
+
+@mixin subtitle-4-special-font-styles() {
+  @include _set-font-styles(normal, normal, 10px, 12px, 0.1px, none);
+}
+
+// bodies
+
+@mixin body-1-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 20px, normal, none);
+}
+
+@mixin body-2-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, normal, none);
+}
+
+@mixin body-3-font-styles() {
+  @include _set-font-styles(normal, normal, 10px, 12px, normal, none);
+}
+
+@mixin body-1-special-font-styles() {
+  @include _set-font-styles(normal, normal, 22px, 25px, normal, capitalize);
+}
+
+@mixin body-1-special-2-font-styles() {
+  @include _set-font-styles(normal, normal, 22px, 25px, normal, none);
+}
+
+// tables
+
+@mixin table-column-font-styles() {
+  @include _set-font-styles(normal, bold, 12px, 16px, 0.6px, capitalize);
+}
+
+@mixin table-heading-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 15.6px, 0.6px, capitalize);
+}
+
+@mixin table-body-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, normal, capitalize);
+}
+
+// buttons
+
+@mixin button-text-font-styles() {
+  @include _set-font-styles(normal, 500, 14px, 16px, normal, capitalize);
+}
+
+@mixin button-text-2-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, normal, capitalize);
+}
+
+@mixin button-text-3-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 18px, normal, $text-transform);
+}
+
+// menu
+
+@mixin main-menu-active-font-styles() {
+  @include _set-font-styles(normal, 500, 14px, 16px, 0.2px, capitalize);
+}
+
+@mixin main-menu-inactive-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 16px, 0.2px, capitalize);
+}
+
+@mixin bottom-menu-active-font-styles() {
+  @include _set-font-styles(normal, 500, 12px, 12px, normal, capitalize);
+}
+
+@mixin bottom-menu-inactive-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 12px, normal, capitalize);
+}
+
+// controls
+
+@mixin control-heading-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, normal, capitalize);
+}
+
+@mixin control-body-1-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 16px, normal, capitalize);
+}
+
+@mixin control-body-2-font-styles() {
+  @include _set-font-styles(normal, normal, 14px, 16px, normal, capitalize);
+}
+
+// fields
+
+@mixin field-label-font-styles() {
+  @include _set-font-styles(normal, normal, 10px, 12px, normal, capitalize);
+}
+
+@mixin field-value-font-styles() {
+  @include _set-font-styles(normal, normal, 12px, 16px, normal, capitalize);
+}
+
+// helpers
+
+@mixin text-truncate() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  //white-space: nowrap;
+}
+
+@mixin first-letter-up() {
+  &::first-letter {
+    text-transform: uppercase !important;
+  }
+}

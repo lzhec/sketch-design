@@ -1,0 +1,71 @@
+@import 'core/variables';
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$text-color-50: app-color(text-color, 0.5);
+$border-color-05: app-color(border-color, 0.05);
+$border-color-10: app-color(border-color, 0.1);
+$danger-color: app-color(danger-color);
+
+.app-label {
+  @include control-heading-font-styles();
+
+  user-select: none;
+  margin-left: 4px;
+  margin-bottom: 11px;
+
+  color: $text-color-50;
+
+  &[disabled='true'],
+  &[disabled='true']::after {
+    color: $text-color-50;
+  }
+
+  &-required {
+    &::after {
+      content: '*';
+      margin-left: 3px;
+    }
+  }
+
+  &-invalid {
+    &::after {
+      color: $danger-color;
+    }
+  }
+}
+
+.app-info-field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: $input-small-height + 40px;
+
+  color: $text-color;
+
+  &[disabled='true'] {
+    color: $text-color-50;
+  }
+
+  &_label {
+    @include control-heading-font-styles();
+    user-select: none;
+  }
+
+  &_text {
+    display: flex;
+    align-items: center;
+    height: $input-small-height;
+    margin-top: 11px;
+    padding: 0 10px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+
+    @include control-body-2-font-styles();
+
+    border-color: $border-color-05;
+    background-color: $border-color-10;
+  }
+}

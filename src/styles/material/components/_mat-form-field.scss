@@ -1,0 +1,385 @@
+@import 'font-variables';
+@import 'core/variables';
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$danger-color: app-color(danger-color);
+$danger-color-10: app-color(danger-color, 0.1);
+$border-color: app-color(border-color);
+$border-color-05: app-color(border-color, 0.05);
+$border-color-10: app-color(border-color, 0.1);
+$border-color-25: app-color(border-color, 0.25);
+$border-color-65: app-color(border-color, 0.65);
+$border-color-75: app-color(border-color, 0.75);
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$text-color-50: app-color(text-color, 0.5);
+$text-color-25: app-color(text-color, 0.25);
+$field-focused-color: app-color(field-focused-color);
+
+// type number
+// скрываем стандартные стрелки
+/* Для Chrome */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  margin: 0;
+}
+
+/* Для Firefox */
+input[type='number'] {
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.mat-error {
+  @include control-heading-font-styles();
+  color: $danger-color;
+}
+
+.mat-hint {
+  @include control-heading-font-styles();
+  color: $text-color-25;
+}
+
+.mat-form-field:not(.app-input-form-field) {
+  /* Change Autocomplete styles in Chrome */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus {
+    border: none;
+    -webkit-text-fill-color: $text-color;
+    box-shadow: 0 0 0px 1000px rgba($bg-main-color, 0.98) inset;
+    -webkit-box-shadow: 0 0 0px 1000px rgba($bg-main-color, 0.98) inset;
+  }
+
+  width: 100%;
+  margin-top: 28px;
+  margin-bottom: 0;
+
+  @include control-body-2-font-styles();
+
+  ::-webkit-input-placeholder {
+    text-transform: capitalize !important;
+  }
+
+  .mat-form-field-label {
+    @include control-heading-font-styles();
+
+    color: $text-color-50;
+
+    &:first-letter {
+      text-transform: uppercase;
+    }
+
+    transform: translateY(-21px) scale(1) !important;
+    pointer-events: all !important;
+
+    &-wrapper {
+      margin: 0 !important;
+      top: -18px !important;
+      left: -10px !important;
+      overflow: visible !important;
+    }
+  }
+
+  &.mat-focused .mat-form-field-label {
+    color: $text-color-50;
+  }
+
+  &.mat-form-field-disabled {
+    .mat-icon {
+      color: $text-color-50 !important;
+    }
+  }
+
+  &.mat-form-field-disabled .mat-form-field-label {
+    color: $text-color-50;
+  }
+
+  &.mat-form-field-invalid .mat-form-field-label,
+  &.mat-form-field-invalid .mat-form-field-label.mat-accent {
+    color: $text-color-50;
+  }
+
+  &.mat-form-field-invalid .mat-form-field-label .mat-form-field-required-marker,
+  &.mat-focused .mat-form-field-required-marker {
+    color: $danger-color;
+  }
+
+  .mat-form-field-infix {
+    padding-bottom: 10px !important;
+    border-top-width: 0 !important;
+
+    &-arrows {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      position: absolute;
+      top: 0;
+      right: 0.5rem;
+      height: 100%;
+
+      &-up,
+      &-down {
+        width: 0;
+        height: 0;
+        cursor: pointer;
+        border-style: solid;
+        border-width: 4px;
+        border-color: transparent;
+      }
+
+      &-up {
+        border-top-width: 0;
+        border-bottom-color: $border-color-65;
+
+        &:hover {
+          border-bottom-color: $border-color;
+        }
+      }
+
+      &-down {
+        border-bottom-width: 0;
+        margin-top: -25%;
+        border-top-color: $border-color-65;
+
+        &:hover {
+          border-top-color: $border-color;
+        }
+      }
+    }
+  }
+
+  .mat-form-field-prefix {
+    top: 0px;
+  }
+
+  .mat-input-element {
+    @include subtitle-3-font-styles();
+
+    text-transform: none !important;
+
+    color: $text-color;
+    caret-color: $text-color;
+
+    @keyframes autofillAnimation {
+      to {
+        color: inherit;
+        background: transparent;
+      }
+    }
+
+    input {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+
+      &:-webkit-autofill {
+        animation-name: autofillAnimation;
+        -webkit-animation-name: autofillAnimation;
+        animation-fill-mode: both;
+        -webkit-animation-fill-mode: both;
+      }
+    }
+
+    &::shadow {
+      div {
+        font-family: $font-family;
+      }
+    }
+
+    &::placeholder {
+      color: $text-color-50;
+    }
+  }
+
+  &.mat-form-field-disabled .mat-input-element {
+    color: $text-color-50;
+  }
+
+  &.mat-form-field-invalid .mat-input-element {
+    color: $danger-color;
+    caret-color: $danger-color;
+
+    &::placeholder {
+      color: $danger-color;
+    }
+  }
+
+  .mat-input-element.app-text-not-capitalize,
+  input[type='password'] {
+    text-transform: none !important;
+  }
+
+  .mat-form-field-subscript-wrapper {
+    font-weight: 500;
+    font-size: 12px;
+    right: 0;
+    pointer-events: none;
+  }
+
+  &.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float & {
+    width: 100%;
+  }
+
+  &.mat-form-field-appearance-standard .mat-form-field-subscript-wrapper,
+  &.mat-form-field-appearance-outline .mat-form-field-subscript-wrapper {
+    padding-left: 0 !important;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-outline {
+    top: 0 !important;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-outline-start {
+    border-radius: $input-border-radius 0 0 $input-border-radius !important;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-outline-end {
+    border-radius: 0 $input-border-radius $input-border-radius 0 !important;
+  }
+
+  &.mat-form-field-appearance-outline.mat-focused .mat-form-field-flex::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-outline-start,
+  &.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float
+    .mat-form-field-outline-gap,
+  &.mat-form-field-appearance-outline .mat-form-field-outline-end {
+    border-color: $border-color-10;
+    background-color: $border-color-05;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-outline-thick .mat-form-field-outline-end,
+  &.mat-form-field-appearance-outline .mat-form-field-outline-thick .mat-form-field-outline-gap,
+  &.mat-form-field-appearance-outline .mat-form-field-outline-thick .mat-form-field-outline-start {
+    border-width: 1px !important;
+  }
+
+  &.mat-form-field-appearance-outline .mat-form-field-flex:hover .mat-form-field-outline-end,
+  &.mat-form-field-appearance-outline .mat-form-field-flex:hover .mat-form-field-outline-gap,
+  &.mat-form-field-appearance-outline .mat-form-field-flex:hover .mat-form-field-outline-start {
+    border-color: $border-color-25;
+  }
+
+  &.mat-form-field-appearance-outline.mat-form-field-disabled
+    .mat-form-field-flex:hover
+    .mat-form-field-outline-end,
+  &.mat-form-field-appearance-outline.mat-form-field-disabled
+    .mat-form-field-flex:hover
+    .mat-form-field-outline-gap,
+  &.mat-form-field-appearance-outline.mat-form-field-disabled
+    .mat-form-field-flex:hover
+    .mat-form-field-outline-start {
+    border-color: $border-color-25;
+  }
+
+  &.mat-form-field-appearance-outline.mat-form-field-invalid .mat-form-field-outline-start,
+  &.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float.mat-form-field-invalid
+    .mat-form-field-outline-gap,
+  &.mat-form-field-appearance-outline.mat-form-field-invalid .mat-form-field-outline-end {
+    border-color: $danger-color-10 !important;
+  }
+
+  &.mat-form-field-appearance-outline.mat-focused .mat-form-field-flex::after {
+    background-color: $field-focused-color;
+  }
+
+  &.mat-form-field-appearance-outline.mat-focused.mat-form-field-invalid
+    .mat-form-field-flex::after {
+    background-color: $danger-color;
+  }
+
+  .mat-form-field-flex {
+    padding-top: 0 !important;
+    height: $input-small-height;
+
+    align-items: center !important;
+    cursor: text;
+
+    button {
+      border: none;
+      cursor: pointer;
+      background-color: transparent;
+    }
+
+    .mat-icon {
+      color: $text-color;
+    }
+  }
+
+  .mat-form-field-underline {
+    background-color: $border-color-25;
+
+    .mat-form-field-ripple {
+      background-color: $field-focused-color;
+    }
+
+    &::before {
+      background-color: transparent;
+    }
+  }
+
+  &.app-textarea .mat-form-field-flex {
+    height: unset;
+
+    textarea {
+      height: auto;
+      min-height: $input-textarea-min-height;
+
+      &::-webkit-scrollbar {
+        width: $scrollbar-size;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+        background: $border-color-10;
+      }
+    }
+  }
+
+  &.--small-field {
+    height: 25px;
+    margin: 0px;
+
+    .mat-form-field-wrapper {
+      padding: 0px;
+      margin: 0px !important;
+    }
+
+    .mat-form-field-flex {
+      height: 25px;
+      margin: 0px !important;
+    }
+
+    .mat-form-field-suffix {
+      top: 0px;
+    }
+
+    .mat-datepicker-toggle {
+      .mat-icon-button {
+        transform: translateY(0px) translateX(10px);
+      }
+    }
+  }
+
+  &.--outline-transparent {
+    .mat-form-field-outline-start,
+    .mat-form-field-outline-end {
+      background-color: transparent !important;
+    }
+  }
+}

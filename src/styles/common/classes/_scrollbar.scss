@@ -1,0 +1,17 @@
+@import 'core/variables';
+@import 'theming/functions';
+
+$border-color-10: app-color(border-color, 0.1);
+
+.app-scrollbar-block {
+  // set scrollbar styles
+  &::-webkit-scrollbar {
+    width: $scrollbar-size;
+    height: $scrollbar-size;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: $border-color-10;
+  }
+}

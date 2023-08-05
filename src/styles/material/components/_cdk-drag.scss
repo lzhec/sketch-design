@@ -1,0 +1,22 @@
+@import 'theming/functions';
+
+$border-color-25: app-color(border-color, 0.25);
+$bg-main-color: app-color(bg-main-color);
+$box-shadow: app-palette-val(box-shadow);
+
+.cdk-drag-preview {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 4px;
+  background-color: $bg-main-color;
+  border-color: $border-color-25;
+  box-shadow: $box-shadow;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

@@ -1,0 +1,77 @@
+@import 'theming/functions';
+
+$base-bg-color: app-color(base-bg-color);
+$sidenav-bg-color: app-color(sidenav-bg-color);
+$button-bg-color-hover: app-color(button-bg-color);
+$button-bg-color: app-color(button-bg-color, 0.65);
+
+:host {
+  display: flex;
+  z-index: 2;
+
+  .menu-flag {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.opened-menu-flag {
+      position: absolute;
+      bottom: 5px;
+      right: -10px;
+      width: 30px;
+      height: 30px;
+      background: $button-bg-color;
+      border-top-left-radius: 50%;
+      border-bottom-left-radius: 50%;
+      cursor: pointer;
+
+      &:hover {
+        background: $button-bg-color-hover;
+      }
+
+      .flag-icon {
+        margin-right: 8px;
+      }
+    }
+
+    &.closed-menu-flag {
+      position: fixed;
+      bottom: 5px;
+      margin-top: 10px;
+      margin-left: -10px;
+      width: 30px;
+      height: 30px;
+      background: $button-bg-color;
+      border-top-right-radius: 50%;
+      border-bottom-right-radius: 50%;
+      text-align: end;
+      cursor: pointer;
+      z-index: 101;
+
+      &:hover {
+        background: $button-bg-color-hover;
+      }
+
+      .flag-icon {
+        margin-left: 8px;
+      }
+    }
+
+    .flag-icon {
+      width: 50%;
+      height: 50%;
+    }
+  }
+}
+
+.mat-sidenav-container {
+  width: 100%;
+  background-color: $base-bg-color;
+
+  .mat-sidenav {
+    width: 100px;
+    background: $sidenav-bg-color;
+    padding: 10px;
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,11 @@
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+
+.mat-icon {
+  svg {
+    path {
+      fill: $text-color;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$text-color-65: app-color(text-color, 0.65);
+$bg-color: app-color(bg-color, 0.05);
+
+.mat-card {
+  padding: 8px;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  background-color: $bg-color !important;
+
+  .mat-card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 0px;
+    min-height: 24px;
+    padding-bottom: 0px;
+    margin-bottom: 8px;
+
+    color: $text-color;
+
+    &-text {
+      margin-left: 0px;
+      margin-right: 0px;
+    }
+
+    &-title {
+      width: 100%;
+    }
+  }
+
+  .mat-card-content {
+    @include body-2-font-styles();
+
+    color: $text-color-65;
+
+    .mat-card-content-header {
+      @include control-heading-font-styles();
+
+      padding-bottom: 4px;
+      color: $text-color;
+    }
+  }
+}

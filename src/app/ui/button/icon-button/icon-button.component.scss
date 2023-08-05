@@ -1,0 +1,72 @@
+@import 'theming/functions';
+
+$button-text-color: app-color(text-main-color);
+$button-hover-text-color: app-color(button-bg-color);
+$button-disabled-text-color: app-color(base-hover-color);
+
+:host {
+  color: $button-text-color;
+
+  &:hover {
+    color: $button-hover-text-color;
+  }
+
+  &[disabled=true] {
+    color: $button-disabled-text-color;
+  }
+
+  &--not-clickable {
+    pointer-events: none;
+  }
+
+  &__text {
+    display: flex;
+    align-items: center;
+
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .app-icon-button {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &__horizontal {
+      flex-direction: row;
+    }
+
+    &__vertical {
+      flex-direction: column;
+    }
+
+    //&--large {
+    //  .app-svg > svg {
+    //    height: 24px;
+    //    width: 24px;
+    //  }
+    //}
+    //
+    //&--middle-large {
+    //  .app-svg > svg {
+    //    height: 20px;
+    //    width: 20px;
+    //  }
+    //}
+    //
+    //&--middle {
+    //  .app-svg > svg {
+    //    height: 16px;
+    //    width: 16px;
+    //  }
+    //}
+    //
+    //&--small {
+    //  .app-svg > svg {
+    //    height: 12px;
+    //    width: 12px;
+    //  }
+    //}
+  }
+}

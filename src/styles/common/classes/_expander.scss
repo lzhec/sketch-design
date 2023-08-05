@@ -1,0 +1,21 @@
+.app-expander {
+  display: flex;
+  margin-right: 5px;
+  transition: transform 0.3s ease-in-out;
+
+  &--up {
+    transform: rotate(180deg);
+  }
+}
+
+.expander-icon {
+  width: 20px;
+  height: 20px;
+  user-select: none;
+
+  &--down {
+    svg {
+      transform: rotate(90deg);
+    }
+  }
+}

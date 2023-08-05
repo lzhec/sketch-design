@@ -1,0 +1,83 @@
+@import 'core/variables';
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$text-color-50: app-color(text-color, 0.5);
+$text-color-65: app-color(text-color, 0.65);
+$text-inverse-color: app-color(text-inverse-color);
+$bg-main-color: app-color(bg-main-color);
+$bg-color: app-color(bg-color);
+$bg-color-10: app-color(bg-color, 0.1);
+$bg-color-25: app-color(bg-color, 0.25);
+$border-color-10: app-color(border-color, 0.1);
+$border-color-25: app-color(border-color, 0.25);
+
+.mat-form-field {
+  .mat-select-value {
+    color: $text-color;
+  }
+}
+
+.mat-select-placeholder {
+  color: $text-color-50;
+}
+
+.mat-select-placeholder,
+.mat-select-value-text {
+  @include control-body-2-font-styles();
+}
+
+.mat-select-panel {
+  border: 1px solid;
+  border-radius: $input-border-radius;
+  background-color: $bg-main-color;
+  border-color: $border-color-25;
+
+  // set scrollbar styles
+  &::-webkit-scrollbar {
+    width: $scrollbar-size;
+    height: $scrollbar-size;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: $border-color-10;
+  }
+
+  .mat-option {
+    @include control-body-2-font-styles();
+    font-weight: normal !important;
+
+    height: 28px !important;
+
+    color: $text-color;
+
+    &:hover {
+      color: $text-inverse-color !important;
+      background-color: $bg-color !important;
+    }
+
+    &.mat-active {
+      color: $text-inverse-color !important;
+      background-color: $bg-color-25 !important;
+    }
+
+    &.mat-option-disabled {
+      color: $text-color-50 !important;
+    }
+
+    &.app-option-unselected {
+      color: $text-color-50;
+
+      &.mat-active {
+        color: $text-color-50 !important;
+        background-color: $bg-main-color !important;
+      }
+    }
+  }
+
+  &.--app-select-panel {
+    margin-top: 22px;
+  }
+}

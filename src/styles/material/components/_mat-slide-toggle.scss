@@ -1,0 +1,101 @@
+@import 'typography/mixins';
+@import 'core/variables';
+@import 'theming/colors/colors';
+@import 'theming/functions';
+
+$bg-color-50: app-color(bg-color, 0.5);
+$success-color-80: app-color(success-color, 0.8);
+$text-color: app-color(text-main-color);
+$text-color-75: app-color(text-color, 0.75);
+$slide-toggle-color: $primary;
+$border-color: app-color(border-color);
+$border-color-50: app-color(border-color, 0.5);
+
+.mat-slide-toggle {
+  &.mat-checked .mat-slide-toggle-thumb-container {
+    transform: translate3d(10px, 0, 0) !important;
+  }
+
+  .mat-slide-toggle-thumb-container {
+    top: 2px;
+    left: 2px;
+  }
+
+  .mat-slide-toggle-thumb {
+    width: 16px;
+    height: 16px;
+    background-color: $slide-toggle-color !important;
+  }
+
+  .mat-slide-toggle-bar {
+    height: 20px;
+    width: 30px;
+    margin-top: -2px;
+    border-radius: 16px;
+
+    background-color: $bg-color-50;
+
+    &:hover {
+      .mat-slide-toggle-persistent-ripple {
+        display: none;
+      }
+    }
+  }
+
+  .mat-slide-toggle-label {
+    display: inline-flex;
+  }
+
+  .mat-slide-toggle-content {
+    @include button-text-2-font-styles();
+    color: $text-color-75;
+  }
+
+  &.mat-checked {
+    .mat-slide-toggle-bar {
+      background-color: $success-color-80;
+    }
+
+    .mat-slide-toggle-content {
+      color: $text-color;
+    }
+  }
+
+  &.--small {
+    .mat-slide-toggle-thumb {
+      width: 12px;
+      height: 12px;
+    }
+
+    .mat-slide-toggle-bar {
+      width: 27px;
+      height: 16px;
+    }
+  }
+
+  &.--outline {
+    .mat-slide-toggle-thumb {
+      width: 14px;
+      height: 14px;
+      background-color: $border-color-50 !important;
+    }
+
+    &.mat-checked {
+      .mat-slide-toggle-thumb {
+        background-color: $border-color !important;
+      }
+    }
+
+    .mat-slide-toggle-bar {
+      background-color: transparent;
+      border: 1.3px solid $border-color-50;
+    }
+  }
+
+  &.--outline.--small {
+    .mat-slide-toggle-thumb {
+      width: 10px;
+      height: 10px;
+    }
+  }
+}

@@ -1,0 +1,14 @@
+<ng-container *ngLet="themeState.theme$ | async as theme">
+  <div *ngFor="let item of menuItems"
+       class="menu-item"
+       [routerLink]="item.path">
+    <app-icon-button prefixIcon="{{ item.icon }}"
+                     type="vertical"
+                     [subType]="theme === 'app-theme-light' ? 'inverse' : null"
+                     size="middle">
+      <span [class.app-text-color-inverse-65]="theme === 'app-theme-light'">
+        {{ item.name | translate }}
+      </span>
+    </app-icon-button>
+  </div>
+</ng-container>

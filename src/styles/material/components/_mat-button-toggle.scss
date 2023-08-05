@@ -1,0 +1,105 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$button-toggle-height: 26px;
+$button-toggle-small-height: 22px;
+$bg-main-color: app-color(bg-main-color);
+$bg-color-10: app-color(bg-color, 0.1);
+$text-color: app-color(text-main-color);
+$text-color-50: app-color(text-color, 0.5);
+$text-color-65: app-color(text-color, 0.65);
+$border-color-05: app-color(border-color, 0.05);
+$border-color-10: app-color(border-color, 0.1);
+$bg-toggle-color: app-color(bg-toggle-color);
+$bg-toggle-checked-color: app-color(bg-toggle-checked-color);
+
+.mat-button-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  background-color: $bg-toggle-color;
+  border-color: transparent;
+
+  .mat-button-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: $button-toggle-height;
+    border-radius: 4px;
+    border: none !important;
+
+    .mat-button-toggle-label-content {
+      @include table-body-font-styles();
+
+      text-transform: capitalize !important;
+      padding: 0 16px;
+      color: $text-color-65;
+    }
+
+    &.mat-button-toggle-disabled .mat-button-toggle-label-content {
+      color: $text-color-50;
+    }
+
+    &.mat-button-toggle-checked {
+      background-color: $bg-color-10;
+    }
+
+    &.mat-button-toggle-checked .mat-button-toggle-label-content {
+      color: $text-color;
+    }
+
+    &:not(.mat-button-toggle-checked) {
+      background-color: transparent;
+    }
+  }
+
+  &.--without-bg {
+    background-color: transparent;
+
+    .mat-button-toggle-checked {
+      background-color: $bg-toggle-checked-color;
+    }
+  }
+
+  &.--small {
+    .mat-button-toggle {
+      height: $button-toggle-small-height;
+    }
+
+    .mat-button-toggle-button {
+      .mat-button-toggle-label-content {
+        padding: 0 16px;
+      }
+    }
+  }
+
+  &.--outline {
+    height: 26px;
+    border-radius: 6px;
+    align-items: center;
+    padding: 0 2px;
+
+    background-color: $bg-main-color;
+    border: 1px solid $border-color-10;
+
+    .mat-button-toggle {
+      border: none;
+      height: 20px;
+    }
+  }
+
+  &.--snack {
+    background-color: transparent;
+
+    .mat-button-toggle-checked {
+      background-color: $bg-toggle-checked-color;
+    }
+
+    .mat-button-toggle:not(:last-child) {
+      margin-right: 8px;
+    }
+
+    .mat-button-toggle:not(.mat-button-toggle-checked) {
+      border: 1px solid $border-color-05 !important;
+    }
+  }
+}

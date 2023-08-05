@@ -1,0 +1,32 @@
+@import './variables';
+
+* {
+  box-sizing: border-box;
+
+  &:active,
+  &:hover,
+  &:focus {
+    outline: 0;
+  }
+}
+
+html {
+  position: relative;
+}
+
+body {
+  position: relative;
+  padding: 0;
+  margin: 0;
+
+  overflow: auto;
+}
+
+.app-scroll-strategy {
+  overflow: hidden;
+  width: calc(100% - $scrollbar-size);
+
+  .app-layout__navbar {
+    width: calc(100% - $scrollbar-size);
+  }
+}

@@ -1,0 +1,199 @@
+@import 'theming/functions';
+
+$border-color-05: app-color(bg-color, 0.05);
+$border-color-50: app-color(border-color, 0.5);
+$border-color-25: app-color(border-color, 0.25);
+$border-color-10: app-color(border-color, 0.1);
+$border-color-65: app-color(border-color, 0.65);
+$danger-color-10: app-color(danger-color, 0.1);
+$danger-color-65: app-color(danger-color, 0.65);
+$warning-color: app-color(warning-color);
+$warning-color-50: app-color(warning-color, 0.5);
+$warning-color-75: app-color(warning-color, 0.75);
+$success-color: app-color(success-color);
+$success-color-10: app-color(success-color, 0.1);
+
+.app-vertical-divider {
+  width: 1px;
+  height: 11px;
+
+  &.--to-right {
+    margin-left: auto;
+
+    position: absolute;
+    right: 0;
+  }
+
+  background-color: $border-color-25;
+
+  &.--10 {
+    background-color: $border-color-10;
+  }
+}
+
+.app-horizontal-divider {
+  border: none;
+  height: 1px;
+  width: 100%;
+
+  margin-top: 8px;
+  margin-bottom: 16px;
+
+  background-color: $border-color-25;
+
+  &.--10 {
+    background-color: $border-color-10;
+  }
+}
+
+.app-border {
+  border: 1px solid $border-color-10;
+
+  &--imp {
+    border: 1px solid $border-color-10 !important;
+  }
+}
+
+.app-border-05 {
+  border: 1px solid $border-color-05;
+}
+
+.app-border-left-10 {
+  border-left: 1px solid $border-color-10;
+}
+
+.app-border-left-10--imp {
+  border-left: 1px solid $border-color-10 !important;
+}
+
+.app-border-right-10 {
+  border-right: 1px solid $border-color-10;
+}
+
+.app-border-right-10--imp {
+  border-right: 1px solid $border-color-10 !important;
+}
+
+.app-border-color-10 {
+  border-color: $border-color-10;
+}
+
+.app-border-bottom-05 {
+  border-bottom: 1px solid $border-color-05 !important;
+}
+
+.app-border-bottom-10 {
+  border-bottom: 1px solid $border-color-10;
+}
+
+.app-border-bottom-10--imp {
+  border-bottom: 1px solid $border-color-10 !important;
+}
+
+.app-border-bottom-25 {
+  border-bottom: 1px solid $border-color-25;
+
+  &.--dashed {
+    border-bottom-style: dashed;
+  }
+}
+
+.app-border-bottom-50 {
+  border-bottom: 1px solid $border-color-50;
+}
+
+.app-border-bottom-65 {
+  border-bottom: 1px solid $border-color-65;
+}
+
+.app-border-top-05 {
+  border-top: 1px solid $border-color-05;
+}
+
+.app-border-top-10 {
+  border-top: 1px solid $border-color-10;
+}
+
+.app-border-top-25 {
+  border-top: 1px solid $border-color-25;
+}
+
+.app-border-dashed {
+  border: 1px dashed $border-color-10;
+}
+
+.app-border-dashed-05 {
+  border: 1px dashed $border-color-05;
+}
+
+.app-border-dashed-10 {
+  border: 1px dashed $border-color-10;
+}
+
+.app-border-dashed-25 {
+  border: 1px dashed $border-color-25;
+}
+
+.app-border-dashed-50 {
+  border: 1px dashed $border-color-50;
+}
+
+.app-border-bottom-dashed {
+  border-bottom: 1px dashed $border-color-25;
+}
+
+.app-border-danger {
+  border-color: $danger-color-65;
+
+  &--imp {
+    border-color: $danger-color-65 !important;
+  }
+
+  &-10 {
+    border-color: $danger-color-10;
+  }
+}
+
+.app-border-warning {
+  border-color: $warning-color;
+
+  &-50 {
+    border-color: $warning-color-50;
+  }
+
+  &-75 {
+    border-color: $warning-color-75;
+  }
+}
+
+.app-border-success {
+  border-color: $success-color;
+
+  &-10 {
+    border-color: $success-color-10;
+  }
+}
+
+.app-divider-color-05 {
+  background-color: $border-color-05 !important;
+}
+
+.app-border-radius {
+  &-4 {
+    border-radius: 4px !important;
+  }
+
+  &-4-top {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+  }
+
+  &-4-bottom {
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+  }
+
+  &-6 {
+    border-radius: 6px !important;
+  }
+}

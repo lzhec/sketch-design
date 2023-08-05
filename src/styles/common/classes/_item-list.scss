@@ -1,0 +1,44 @@
+@import 'theming/functions';
+
+$text-color-65: app-color(text-color, 0.65);
+$bg-color-05: app-color(bg-color, 0.05);
+
+.app-item-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  & + .item-list {
+    margin-top: 28px;
+  }
+
+  &-title {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  &-item {
+    display: flex;
+    flex-wrap: nowrap;
+
+    justify-content: space-between;
+
+    .body-2 {
+      color: $text-color-65;
+    }
+
+    :not(:first-child) {
+      margin-top: 4px;
+    }
+  }
+}
+
+.app-list-item {
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: transparent;
+
+  &:hover {
+    background-color: $bg-color-05;
+  }
+}

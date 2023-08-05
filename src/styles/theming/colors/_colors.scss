@@ -1,0 +1,107 @@
+// основные цвета
+$success: #4ecfbd;
+$success-light: #147669;
+$danger: #ff7e67;
+$warning: #f0ad4e;
+$warning-extra: #fad45b;
+
+// primary цвета
+$primary-main: #ffffff;
+$primary: #e6eaf6;
+$primary-75: rgba($primary, 0.75);
+$primary-65: rgba($primary, 0.65);
+$primary-50: rgba($primary, 0.5);
+$primary-25: rgba($primary, 0.25);
+$primary-10: rgba($primary, 0.1);
+$primary-05: rgba($primary, 0.05);
+
+// secondary цвета
+$secondary: #00152a;
+$secondary-65: rgba($secondary, 0.65);
+
+// dark
+$dark: #000000;
+$dark-main: #121212;
+$dark-main-65: rgba($dark-main, 0.65);
+$field-dark: #525252;
+$field-dark-25: rgba($field-dark, 0.25);
+
+// main background
+$dark-main-bg: $dark-main;
+$light-main-bg: $primary-main;
+
+$extra: #263548;
+$extra-25: rgba($extra, 0.25);
+$dark-extra-fill: #1c1c1e;
+$light-extra-fill: #eaebed;
+$blue-status: #4390dd;
+
+$indigo: #b0c5f5;
+$indigo-deep: #618ef3;
+$blue: #c8dff7;
+$lightblue: #e5ecfc;
+$teal: #8ac8bb;
+$lightpurple: #cabdf6;
+$pink: #f4caca;
+$yellow: #f7f3c3;
+$yellow-75: rgba(#f7f3c3, 0.75);
+$bisque: #f2dabc;
+$bisque-75: rgba(#f2dabc, 0.75);
+$purple: #d4b2dd;
+$palegreen: #d4fdc6;
+$cyan: #bef6ea;
+$checked-color: #e0e1e1;
+$whitesmoke: whitesmoke;
+
+// цвета для линий графиков
+$line-pardise-pink: #e43d66;
+$line-alabama-crimson: #a60a30;
+$line-mexican-pink: #dd0d7e;
+$line-rose-quartz-pink: #c04cad;
+$line-midnight: #841773;
+$line-deep-magenta: #dd0dc7;
+$line-deep-lilac: #994cc0;
+$line-american-violet: #601784;
+$line-grape: #591fb0;
+$line-pixie-powder: #431784;
+$line-plump-purple: #5a4cc0;
+$line-persian-indigo: #251784;
+$line-denim-blue: #1f50b0;
+$line-havelock-blue: #4c85c0;
+$line-yale-blue: #174d84;
+$line-blue-sapphire: #176284;
+$line-green-crayola: #1fb073;
+$line-emerald: #4cc069;
+$line-la-salle-green: #178433;
+$line-green-r-y-b: #5db01f;
+$line-android-green: #a6c04c;
+$line-olive-drab: #6c8417;
+$line-gold-foil: #b0a11f;
+
+// цвета для регионов карты
+$default-region: $primary;
+$australia: #faf4c2;
+$russia: #ffcbcb;
+$europe: #a9c7f7;
+$asia: #dfb3df;
+$africa: #d0bff8;
+$canada: #e5ecfc;
+$mexico: #65c9bc;
+$usa: #a4f7eb;
+$south-america: #c2fec6;
+
+$default-region-light: $secondary;
+$australia-light: #ffae64;
+$russia-light: #ff876c;
+$europe-light: #8ed6ff;
+$asia-light: #dd5dff;
+$africa-light: #f1cd51;
+$canada-light: #60b2ff;
+$mexico-light: #b79dff;
+$usa-light: #2c99ff;
+$south-america-light: #2ddbe7;
+
+$shadow-color: rgba(0, 0, 0, 0.14);
+
+$dark-toggle-bg-color: $primary-05;
+$dark-toggle-bg-checked-color: $primary-10;

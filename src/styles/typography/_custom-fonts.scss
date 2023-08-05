@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'PP Object Sans';
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url('../../assets/fonts/PP_Object_sans/Regular/PPObjectSans-Regular.woff2') format('woff2'),
+    url('../../assets/fonts/PP_Object_sans/Regular/PPObjectSans-Regular.woff') format('woff'),
+    url('../../assets/fonts/PP_Object_sans/Regular/PPObjectSans-Regular.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'PP Object Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../assets/fonts/PP_Object_sans/Medium/PPObjectSans-Medium.woff2') format('woff2'),
+    url('../../assets/fonts/PP_Object_sans/Medium/PPObjectSans-Medium.woff') format('woff'),
+    url('../../assets/fonts/PP_Object_sans/Medium/PPObjectSans-Medium.otf') format('truetype');
+}
+
+@font-face {
+  font-family: 'PP Object Sans';
+  font-style: normal;
+  font-weight: bold;
+  font-display: swap;
+  src: url('../../assets/fonts/PP_Object_sans/Bold/PPObjectSans-Bold.woff2') format('woff2'),
+    url('../../assets/fonts/PP_Object_sans/Bold/PPObjectSans-Bold.woff') format('woff'),
+    url('../../assets/fonts/PP_Object_sans/Bold/PPObjectSans-Bold.otf') format('truetype');
+}

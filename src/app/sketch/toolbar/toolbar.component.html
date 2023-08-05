@@ -1,0 +1,13 @@
+<app-button (click)="fileInput.click()">
+  Загрузить
+</app-button>
+
+<!-- <app-button (click)="selectLayer($event)">
+  Выбрать
+</app-button> -->
+
+<input #fileInput
+       type="file"
+       hidden
+       (change)="selectFile($event)"
+       accept="{{ acceptFileFormats }}" />

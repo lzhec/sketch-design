@@ -1,0 +1,45 @@
+.mr-auto {
+  margin-right: auto !important;
+}
+
+.ml-auto {
+  margin-left: auto !important;
+}
+
+.mt-auto {
+  margin-top: auto !important;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-30 {
+  width: 30%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+@for $count from 0 through 60 {
+  .mrgn-#{$count} {
+    margin: 1px * $count;
+  }
+
+  .mrgn-top-#{$count} {
+    margin-top: 1px * $count;
+  }
+
+  .mrgn-btm-#{$count} {
+    margin-bottom: 1px * $count;
+  }
+
+  .mrgn-lft-#{$count} {
+    margin-left: 1px * $count;
+  }
+
+  .mrgn-rgt-#{$count} {
+    margin-right: 1px * $count;
+  }
+}

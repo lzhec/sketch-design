@@ -1,0 +1,32 @@
+@import 'screen-sizes';
+
+$page-padding-size: 15px;
+
+.app-page-container {
+  width: 100%;
+  padding: 0px $page-padding-size;
+}
+
+@include xs_screen() {
+  .app-page-container {
+    max-width: 767px - 2 * $page-padding-size;
+  }
+}
+
+@include s_screen() {
+  .app-page-container {
+    max-width: 1024px - 2 * $page-padding-size;
+  }
+}
+
+@include m_screen() {
+  .app-page-container {
+    max-width: 1025px + 2 * $page-padding-size;
+  }
+}
+
+@include l_screen() {
+  .app-page-container {
+    max-width: 1242px + 2 * $page-padding-size;
+  }
+}

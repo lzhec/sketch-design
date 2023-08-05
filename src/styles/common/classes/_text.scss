@@ -1,0 +1,58 @@
+@import 'theming/functions';
+@import 'typography/mixins';
+
+$danger-color: app-color(danger-color);
+$success-color: app-color(success-color);
+$warning-color: app-color(warning-color);
+$text-link-color: app-color(text-link-color);
+$text-color: app-color(text-main-color);
+$text-color-25: app-color(text-color, 0.25);
+$text-color-50: app-color(text-color, 0.5);
+$text-color-65: app-color(text-color, 0.65);
+$text-color-75: app-color(text-color, 0.75);
+$text-inverse-color: app-color(text-inverse-color);
+$text-static-color: app-color(text-static-color);
+
+.app-text-success {
+  color: $success-color;
+}
+
+.app-text-danger {
+  color: $danger-color !important;
+}
+
+.app-text-warning {
+  color: $warning-color;
+}
+
+.app-text-link-color {
+  color: $text-link-color;
+}
+
+.app-text-color {
+  color: $text-color;
+
+  &-50 {
+    color: $text-color-50;
+  }
+
+  &-65 {
+    color: $text-color-65;
+  }
+
+  &-75 {
+    color: $text-color-75;
+  }
+
+  &-25 {
+    color: $text-color-25;
+  }
+
+  &-inverse {
+    color: $text-inverse-color;
+  }
+
+  &-static {
+    color: $text-static-color;
+  }
+}

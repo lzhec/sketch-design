@@ -1,0 +1,29 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$box-shadow: app-palette-val(box-shadow);
+
+.cdk-overlay-container {
+  .mat-tooltip {
+    min-height: 26px;
+    border-radius: 6px;
+    padding: 6px 12px;
+
+    @include table-body-font-styles();
+
+    word-break: break-word;
+    text-transform: none;
+    white-space: pre-line;
+
+    background-color: $bg-main-color !important;
+    color: $text-color;
+  }
+}
+
+.app-tooltip-panel {
+  border-radius: 4px;
+  box-shadow: $box-shadow;
+  background-color: $bg-main-color;
+}

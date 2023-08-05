@@ -1,0 +1,45 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$text-color-50: app-color(text-color, 0.5);
+$border-color-50: app-color(border-color, 0.5);
+$bg-block-0-color: app-color(bg-block-0-color);
+
+.mat-expansion-panel {
+  margin-bottom: 8px !important;
+  border-radius: 4px;
+  box-shadow: none !important;
+
+  color: $text-color;
+  background-color: $bg-block-0-color;
+
+  .mat-expansion-panel-header {
+    height: 46px;
+
+    @include heading-4-font-styles();
+
+    color: $text-color;
+    background-color: $bg-block-0-color;
+
+    &[aria-disabled='true'] {
+      color: $text-color-50;
+    }
+  }
+
+  .mat-expansion-panel-header-title {
+    align-items: center;
+
+    @include heading-4-font-styles();
+
+    color: $text-color;
+  }
+
+  .mat-expansion-panel-header-description {
+    justify-content: flex-end;
+  }
+
+  .mat-expansion-indicator::after {
+    color: $border-color-50;
+  }
+}

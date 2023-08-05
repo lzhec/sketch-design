@@ -1,0 +1,179 @@
+@import 'core/variables';
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$text-color-65: app-color(text-color, 0.65);
+$text-color-25: app-color(text-color, 0.25);
+$border-color-10: app-color(border-color, 0.1);
+$border-color-65: app-color(border-color, 0.65);
+$bg-toggle-color: app-color(bg-toggle-color);
+$bg-toggle-checked-color: app-color(bg-toggle-checked-color);
+
+.mat-ink-bar {
+  display: none !important;
+}
+
+.mat-tab-list {
+  display: flex;
+}
+
+.mat-tab-header-pagination {
+  min-width: auto !important;
+  box-shadow: none;
+
+  &.mat-tab-header-pagination-before {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
+    padding-left: 0px;
+  }
+
+  &.mat-tab-header-pagination-after {
+    width: 14px !important;
+    min-width: 14px !important;
+    max-width: 14px !important;
+    height: 14px !important;
+    min-height: 14px !important;
+    max-height: 14px !important;
+    padding-right: 0px;
+  }
+
+  .mat-tab-header-pagination-chevron {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+.app-mat-tab-group-btn {
+  .mat-tab-header {
+    height: 32px;
+    border: none !important;
+    padding: 4px 0px;
+
+    .mat-tab-labels {
+      height: 100%;
+
+      .mat-tab-label {
+        padding: 0 24px;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+.mat-tab-nav-bar.app-mat-tab-group-btn {
+  border: none !important;
+}
+
+.mat-tab-header {
+  height: 44px;
+}
+
+.mat-tab-nav-bar,
+.mat-tab-header {
+  flex-shrink: initial !important;
+  border-radius: 6px;
+  width: 100%;
+  height: $nav-height;
+  padding: 8px 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  .mat-tab-label,
+  .mat-tab-link {
+    height: auto;
+    padding: 0px;
+    margin-right: 20px;
+    min-width: auto;
+    opacity: 1 !important;
+
+    @include bottom-menu-inactive-font-styles();
+
+    &-active {
+      @include bottom-menu-active-font-styles();
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .mat-tab-label-content {
+    justify-content: flex-start !important;
+
+    user-select: none;
+  }
+}
+
+.mat-tab-group {
+  .mat-tab-header {
+    border-bottom: none;
+  }
+
+  .mat-tab-body {
+    &-content {
+      overflow: visible;
+    }
+  }
+
+  .mat-tab-body.mat-tab-body-active {
+    overflow-y: inherit;
+  }
+
+  &.flex-content-container {
+    .mat-tab-body-content {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.mat-tab-group,
+nav {
+  .mat-tab-header,
+  &.mat-tab-nav-bar {
+    background-color: $bg-main-color !important;
+    border: 1px solid $border-color-10;
+  }
+
+  .mat-tab-header-pagination-chevron {
+    border-color: $text-color-65 !important;
+  }
+
+  .mat-tab-link {
+    color: $text-color-65;
+
+    &-active {
+      color: $text-color;
+    }
+  }
+
+  .mat-tab-label {
+    color: $text-color-65;
+
+    &-active {
+      color: $text-color;
+    }
+  }
+
+  // disabled
+  .mat-tab-label.mat-tab-disabled,
+  .mat-tab-link.mat-tab-disabled {
+    color: $text-color-25;
+  }
+}
+
+.app-mat-tab-group-btn {
+  .mat-tab-label,
+  .mat-tab-link {
+    background-color: $bg-toggle-color;
+
+    &-active {
+      background-color: $bg-toggle-checked-color;
+    }
+  }
+}

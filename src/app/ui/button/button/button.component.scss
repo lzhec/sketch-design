@@ -1,0 +1,149 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$danger-color: app-color(danger-color);
+$success-color: app-color(success-color);
+$text-main-color: app-color(text-main-color);
+$text-inverse-color: app-color(button-text-color);
+$button-danger-text-color: app-color(button-danger-text-color);
+$button-accept-text-color: app-color(button-accept-text-color);
+$button-bg-color: app-color(button-bg-color);
+$button-secondary-bg-color: app-color(button-default2-bg-color);
+$button-secondary-disabled-bg-color: app-color(button-default2-disabled-bg-color);
+$button-bg-hover-color: app-color(button-bg-hover-color);
+$button-secondary-bg-hover-color: app-color(button-default2-bg-hover-color);
+$button-outline-bg-hover-color: app-color(button-outline-bg-hover-color);
+$link-color: app-color(text-link-color);
+$approve-color: app-color(shadow-color);
+$warning-color-17: app-color(warning-color, 0.17);
+$warning-color-25: app-color(warning-color, 0.25);
+
+//:host {
+//  display: inline-flex;
+//  padding: 0;
+//  background: transparent;
+//  border: none;
+//}
+
+.app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  user-select: none;
+
+  @include button-text-font-styles();
+
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: inherit;
+  }
+
+  &:hover:not([disabled='true']) {
+    cursor: pointer;
+  }
+
+  &[disabled='true'] {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  &--large {
+    min-width: 80px;
+    height: 38px;
+    border-radius: 6px;
+  }
+
+  &--middle-large {
+    min-width: 80px;
+    height: 34px;
+    border-radius: 6px;
+  }
+
+  &--middle {
+    min-width: 80px;
+    height: 24px;
+    border-radius: 4px;
+
+    @include button-text-2-font-styles();
+  }
+
+  &--small {
+    height: 24px;
+    min-width: 80px;
+    border-radius: 4px;
+
+    @include button-text-3-font-styles();
+  }
+
+  &--primary {
+    color: $text-main-color;
+    background-color: $button-bg-color;
+
+    &:hover {
+      background-color: $button-bg-hover-color;
+    }
+  }
+
+  &--secondary {
+    color: $text-inverse-color;
+    background-color: $button-secondary-bg-color;
+
+    &:hover:not([disabled]) {
+      background-color: $button-secondary-bg-hover-color;
+    }
+
+    &[disabled] {
+      background-color: $button-secondary-disabled-bg-color;
+    }
+  }
+
+  &--transparent {
+    color: $text-main-color;
+    background-color: transparent;
+  }
+
+  &--danger {
+    color: $button-danger-text-color;
+    background-color: $danger-color;
+
+    &:hover:not([disabled]) {
+      background-color: $danger-color;
+      opacity: 0.65;
+    }
+
+    &[disabled] {
+      background-color: $button-bg-color;
+      color: $text-inverse-color;
+    }
+  }
+
+  &--success {
+    color: $button-accept-text-color;
+    background-color: $success-color;
+
+    &:hover:not([disabled]) {
+      background-color: $success-color;
+      opacity: 0.65;
+    }
+
+    &[disabled] {
+      background-color: $button-bg-color;
+      color: $text-inverse-color;
+    }
+  }
+
+  &--warning {
+    background-color: $warning-color-17;
+
+    &:hover:not([disabled]) {
+      background-color: $warning-color-25;
+    }
+  }
+}

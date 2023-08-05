@@ -1,0 +1,379 @@
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-main-color: app-color(text-main-color);
+$text-color-25: app-color(text-color, 0.25);
+$success-color: app-color(success-color);
+$danger-color: app-color(danger-color);
+$warning-color: app-color(warning-color);
+$warning-extra-color: app-color(warning-extra-color);
+$text-link-color: app-color(text-link-color);
+$text-static-color: app-color(text-static-color);
+
+.app-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+
+  &__vertical {
+    flex-direction: column;
+  }
+
+  &--small {
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &--small-middle {
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &--middle {
+    svg {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  &.--disabled {
+    pointer-events: none;
+  }
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  &.--disabled-hover {
+    opacity: 1;
+  }
+}
+
+.app-svg-stroke {
+  svg {
+    stroke: $text-main-color;
+
+    [stroke] {
+      stroke: $text-main-color;
+    }
+  }
+
+  &.--inverse {
+    svg {
+      stroke: $bg-main-color;
+
+      [stroke] {
+        stroke: $bg-main-color;
+      }
+    }
+  }
+
+  &.--static {
+    svg {
+      stroke: $text-static-color;
+
+      [stroke] {
+        stroke: $text-static-color;
+      }
+    }
+  }
+
+  &.--danger {
+    svg {
+      stroke: $danger-color;
+
+      [stroke] {
+        stroke: $danger-color;
+      }
+    }
+  }
+
+  &.--warning {
+    svg {
+      stroke: $warning-color;
+
+      [stroke] {
+        stroke: $warning-color;
+      }
+    }
+  }
+
+  &.--warning-extra {
+    svg {
+      stroke: $warning-extra-color;
+
+      [stroke] {
+        stroke: $warning-extra-color;
+      }
+    }
+  }
+
+  &.--success {
+    svg {
+      stroke: $success-color;
+
+      [stroke] {
+        stroke: $success-color;
+      }
+    }
+  }
+
+  &.--link {
+    svg {
+      stroke: $text-link-color;
+
+      [stroke] {
+        stroke: $text-link-color;
+      }
+    }
+  }
+
+  &.--disabled {
+    svg {
+      stroke: $text-color-25;
+
+      [stroke] {
+        stroke: $text-color-25;
+      }
+    }
+  }
+}
+
+.app-svg-fill {
+  svg {
+    fill: $text-main-color;
+
+    [fill] {
+      fill: $text-main-color;
+    }
+  }
+
+  &.--inverse {
+    svg {
+      fill: $bg-main-color;
+
+      [fill] {
+        fill: $bg-main-color;
+      }
+    }
+  }
+
+  &.--static {
+    svg {
+      fill: $text-static-color;
+
+      [fill] {
+        fill: $text-static-color;
+      }
+    }
+  }
+
+  &.--danger {
+    svg {
+      fill: $danger-color;
+
+      [fill] {
+        fill: $danger-color;
+      }
+    }
+  }
+
+  &.--warning {
+    svg {
+      fill: $warning-color;
+
+      [fill] {
+        fill: $warning-color;
+      }
+    }
+  }
+
+  &.--warning-extra {
+    svg {
+      fill: $warning-extra-color;
+
+      [fill] {
+        fill: $warning-extra-color;
+      }
+    }
+  }
+
+  &.--success {
+    svg {
+      fill: $success-color;
+
+      [fill] {
+        fill: $success-color;
+      }
+    }
+  }
+
+  &.--link {
+    svg {
+      fill: $text-link-color;
+
+      [fill] {
+        fill: $text-link-color;
+      }
+    }
+  }
+
+  &.--disabled {
+    svg {
+      fill: $text-color-25;
+
+      [fill] {
+        fill: $text-color-25;
+      }
+    }
+  }
+}
+
+.app-svg-skeleton {
+  svg {
+    width: 100%;
+    height: 100%;
+
+    rect:not([stroke]) {
+      fill: $text-main-color;
+    }
+
+    rect:not([fill]) {
+      stroke: $text-main-color;
+    }
+
+    path:not([fill]) {
+      stroke: $text-main-color;
+    }
+
+    path:not([stroke]) {
+      fill: $text-main-color;
+    }
+
+    circle:not([fill]) {
+      stroke: $text-main-color;
+    }
+
+    circle:not([stroke]) {
+      fill: $text-main-color;
+    }
+  }
+
+  &.--danger {
+    svg {
+      rect:not([stroke]) {
+        fill: $danger-color;
+      }
+
+      rect:not([fill]) {
+        stroke: $danger-color;
+      }
+
+      path:not([fill]) {
+        stroke: $danger-color;
+      }
+
+      path:not([stroke]) {
+        fill: $danger-color;
+      }
+
+      circle:not([fill]) {
+        stroke: $danger-color;
+      }
+
+      circle:not([stroke]) {
+        fill: $danger-color;
+      }
+    }
+  }
+
+  &.--success {
+    svg {
+      rect:not([stroke]) {
+        fill: $success-color;
+      }
+
+      rect:not([fill]) {
+        stroke: $success-color;
+      }
+
+      path:not([fill]) {
+        stroke: $success-color;
+      }
+
+      path:not([stroke]) {
+        fill: $success-color;
+      }
+
+      circle:not([fill]) {
+        stroke: $success-color;
+      }
+
+      circle:not([stroke]) {
+        fill: $success-color;
+      }
+    }
+  }
+
+  &.--warning {
+    svg {
+      rect:not([stroke]) {
+        fill: $warning-color;
+      }
+
+      rect:not([fill]) {
+        stroke: $warning-color;
+      }
+
+      path:not([fill]) {
+        stroke: $warning-color;
+      }
+
+      path:not([stroke]) {
+        fill: $warning-color;
+      }
+
+      circle:not([fill]) {
+        stroke: $warning-color;
+      }
+
+      circle:not([stroke]) {
+        fill: $warning-color;
+      }
+    }
+  }
+
+  &.--warning-extra {
+    svg {
+      rect:not([stroke]) {
+        fill: $warning-extra-color;
+      }
+
+      rect:not([fill]) {
+        stroke: $warning-extra-color;
+      }
+
+      path:not([fill]) {
+        stroke: $warning-extra-color;
+      }
+
+      path:not([stroke]) {
+        fill: $warning-extra-color;
+      }
+
+      circle:not([fill]) {
+        stroke: $warning-extra-color;
+      }
+
+      circle:not([stroke]) {
+        fill: $warning-extra-color;
+      }
+    }
+  }
+}

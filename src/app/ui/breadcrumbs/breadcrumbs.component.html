@@ -1,0 +1,30 @@
+<!--<ol>-->
+<!--  <li *ngFor="let part of routeParts"><a routerLink="/{{part.url}}">{{part.breadcrumb}}</a></li>-->
+<!--</ol>-->
+
+<div class="header-content app-breadcrumbs" [class.in-settings]="isSettings" [class.headerMainColor]="mainColor">
+  <span class="b-crumbs">
+      <ng-template [ngIf]="breadcrumbs.length > 0" [ngIfElse]="ownBreadcrumbsTemplate">
+        <span *ngFor="let b of breadcrumbs" class="b-crumb" [routerLink]="b.href">{{ b.label }}</span>
+      </ng-template>
+      <ng-template #ownBreadcrumbsTemplate>
+        <span *ngFor="let b of ownBreadcrumbs" class="b-crumb" [routerLink]="b.href">{{ b.label }}</span>
+      </ng-template>
+  </span>
+  <ng-container *ngIf="isSettings">
+    <div class="profile">
+      <div class="info">
+<!--        <div class="username" class="username" routerLink="/account/main" title="Мой профиль"-->
+<!--             *ngIf="authService.isAuthenticated()">{{getUserInitials(authService.getUser().name)}}</div>-->
+        <span class="user-bottom-info">
+          <h5 class="message">Для применения настроек выйдите и заново авторизируйтесь</h5>
+        </span>
+      </div>
+<!--      <span class="avatar">-->
+<!--	      <img *ngIf="authService.isAuthenticated() && authService.avatar" src="{{authService.avatar}}" alt="">-->
+<!--	      <img *ngIf="!authService.isAuthenticated() || (authService.isAuthenticated() && !authService.avatar)" src="assets/images/empty-avatar.svg" alt="">-->
+<!--	    </span>-->
+<!--      <span class="exit-button" (click)="authService.logout()">Выход</span>-->
+    </div>
+  </ng-container>
+</div>

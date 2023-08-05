@@ -1,0 +1,36 @@
+<mat-sidenav-container class="nav-menu-container"
+                       [ngVar]="true"
+                       #sidenavOpened="ngVar">
+  <mat-sidenav #sidenav
+               mode="side"
+               [opened]="sidenavOpened.value$ | async">
+    <div *ngIf="sidenav.opened"
+         class="menu-flag opened-menu-flag"
+         (click)="sidenav.toggle()">
+      <app-svg type="stroke"
+               src="/assets/icons/arrow-left-2.svg"
+               class="flag-icon">
+      </app-svg>
+    </div>
+
+    <app-nav-menu></app-nav-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="sidenav-content">
+    <div *ngIf="!sidenav.opened"
+         class="menu-flag closed-menu-flag"
+         (click)="sidenav.toggle()">
+      <app-svg type="stroke"
+               src="/assets/icons/arrow-right-2.svg"
+               class="flag-icon">
+      </app-svg>
+    </div>
+
+<!--    <content>-->
+<!--                <app-auth *ngIf="!token && (!isStoreLoaded || loadingError)"></app-auth>-->
+      <!--          <router-outlet *ngIf="token"></router-outlet>-->
+<!--      <router-outlet></router-outlet>-->
+<!--    </content>-->
+  </mat-sidenav-content>
+</mat-sidenav-container>
+

@@ -1,0 +1,33 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$bg-color-05: app-color(bg-color, 0.05);
+$success-text-color: app-color(success-color);
+$warning-text-color: app-color(warning-color);
+$danger-text-color: app-color(danger-color);
+$success-bg-color: app-color(success-color, 0.1);
+$warning-bg-color: app-color(warning-color, 0.1);
+$danger-bg-color: app-color(danger-color, 0.1);
+
+.app-menu-tile {
+  @include body-2-font-styles();
+
+  padding: 2px 16px;
+  background-color: $bg-color-05;
+  border-radius: 12px;
+
+  &.success {
+    color: $success-text-color;
+    background-color: $success-bg-color;
+  }
+
+  &.warning {
+    color: $warning-text-color;
+    background-color: $warning-bg-color;
+  }
+
+  &.danger {
+    color: $danger-text-color;
+    background-color: $danger-bg-color;
+  }
+}

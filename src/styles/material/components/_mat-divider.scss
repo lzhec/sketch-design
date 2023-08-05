@@ -1,0 +1,11 @@
+@import 'theming/functions';
+
+$text-color-65: app-color(text-color, 0.65);
+
+.mat-divider {
+  border-top-color: $text-color-65;
+
+  &-horizontal {
+    width: 100%;
+  }
+}

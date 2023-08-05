@@ -1,0 +1,12 @@
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$border-color-25: app-color(border-color, 0.25);
+
+.mat-bottom-sheet-container {
+  min-width: 100vw !important;
+  color: $text-color;
+  background-color: $bg-main-color;
+  border-top: 1px solid $border-color-25;
+}

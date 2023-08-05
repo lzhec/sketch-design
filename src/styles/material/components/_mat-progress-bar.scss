@@ -1,0 +1,44 @@
+@import 'core/variables';
+@import 'theming/functions';
+
+$success-color: app-color(success-color);
+$danger-color: app-color(danger-color);
+$text-color-75: app-color(text-color, 0.75);
+$text-color-65: app-color(text-color, 0.65);
+$border-color-10: app-color(border-color, 0.1);
+$progress-bar-height: 2px;
+
+.mat-progress-bar {
+  height: $progress-bar-height !important;
+  margin: 4px 0;
+
+  .mat-progress-bar-fill:after {
+    background-color: $success-color;
+  }
+
+  &__fail {
+    .mat-progress-bar-fill:after {
+      background-color: $danger-color;
+    }
+  }
+
+  &__process {
+    .mat-progress-bar-fill:after {
+      background-color: $text-color-75;
+    }
+  }
+
+  &__close {
+    .mat-progress-bar-fill:after {
+      background-color: $text-color-65;
+    }
+  }
+
+  .mat-progress-bar-buffer {
+    background-color: $border-color-10;
+  }
+
+  .mat-progress-bar-background {
+    display: none;
+  }
+}

@@ -1,0 +1,12 @@
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$border-color-25: app-color(border-color, 0.25);
+
+.mat-snack-bar-container {
+  padding: 12px 14px;
+  color: $text-color;
+  background-color: $bg-main-color;
+  border: 1px solid $border-color-25;
+}

@@ -1,0 +1,209 @@
+// @import './google-fonts';
+@import './custom-fonts';
+@import './mixins';
+
+// base font styles
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  font-size: 14px;
+  font-family: $font-family !important;
+}
+
+input {
+  &::shadow {
+    div {
+      font-family: $font-family !important;
+    }
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0; // не менять, рушит верстку
+}
+
+// heads
+
+h1,
+.heading-1 {
+  @include heading-1-font-styles();
+}
+
+h2,
+.heading-2 {
+  @include heading-2-font-styles();
+}
+
+h3,
+.heading-3 {
+  @include heading-3-font-styles();
+}
+
+h4,
+.heading-4 {
+  @include heading-4-font-styles();
+}
+
+.heading-1-special {
+  @include heading-1-special-font-styles();
+}
+
+.heading-2-special {
+  @include heading-2-special-font-styles();
+}
+
+.heading-3-special {
+  @include heading-3-special-font-styles();
+}
+
+.heading-4-special {
+  @include heading-4-special-font-styles();
+}
+
+// subtitles
+
+.subtitle-1 {
+  @include subtitle-1-font-styles();
+}
+
+.subtitle-2 {
+  @include subtitle-2-font-styles();
+}
+
+.subtitle-3 {
+  @include subtitle-3-font-styles();
+}
+
+.subtitle-4 {
+  @include subtitle-4-font-styles();
+}
+
+// base text
+
+.body-1 {
+  @include body-1-font-styles();
+}
+
+.body-2 {
+  @include body-2-font-styles();
+}
+
+.body-3 {
+  @include body-3-font-styles();
+}
+
+.body-1-special {
+  @include body-1-special-font-styles();
+}
+
+// tables
+
+.table-column {
+  @include table-column-font-styles();
+}
+
+.table-heading {
+  @include table-heading-font-styles();
+}
+
+.table-body {
+  @include table-body-font-styles();
+}
+
+// buttons
+
+.button-text {
+  @include button-text-font-styles();
+}
+
+.button-text-2 {
+  @include button-text-2-font-styles();
+}
+
+.btn-text-3 {
+  @include button-text-3-font-styles();
+}
+
+// menu
+
+.main-menu-active {
+  @include main-menu-active-font-styles();
+}
+
+.main-menu-inactive {
+  @include main-menu-inactive-font-styles();
+}
+
+.bottom-menu-active {
+  @include bottom-menu-active-font-styles();
+}
+
+.bottom-menu-inactive {
+  @include bottom-menu-inactive-font-styles();
+}
+
+// controls
+
+.control-heading {
+  @include control-heading-font-styles();
+}
+
+.control-body-1 {
+  @include control-body-1-font-styles();
+}
+
+.control-body-2 {
+  @include control-body-2-font-styles();
+}
+
+.field-label {
+  @include field-label-font-styles();
+}
+
+.field-value {
+  @include field-value-font-styles();
+}
+
+.app-text-link {
+  cursor: pointer;
+  text-decoration: underline;
+
+  &--not-underline {
+    text-decoration: none;
+  }
+
+  &--disabled {
+    cursor: default;
+    text-decoration: none;
+
+    pointer-events: none;
+  }
+}
+
+.app-text-truncate {
+  @include text-truncate();
+}
+
+.app-text-capitalize {
+  text-transform: capitalize;
+}
+
+.app-text-not-capitalize {
+  text-transform: none;
+}
+
+.app-text-white-space-pre {
+  white-space: pre;
+}
+
+.app-text-first-letter-up {
+  @include first-letter-up();
+}

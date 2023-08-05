@@ -1,0 +1,73 @@
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+$text-color-25: app-color(text-color, 0.25);
+$text-color-65: app-color(text-color, 0.65);
+$text-color-75: app-color(text-color, 0.75);
+
+.mat-radio-button {
+  overflow: hidden;
+
+  &:not(.mat-radio-disabled) {
+    .mat-radio-label {
+      color: $text-color-75;
+    }
+
+    .mat-radio-outer-circle {
+      border-color: $text-color-75 !important;
+    }
+
+    .mat-radio-inner-circle {
+      background-color: $text-color-75 !important;
+    }
+
+    &:not(.mat-radio-checked) {
+      .mat-radio-label {
+        color: $text-color-65;
+      }
+
+      .mat-radio-outer-circle {
+        border-color: $text-color-65 !important;
+      }
+
+      .mat-radio-inner-circle {
+        background-color: $text-color-65 !important;
+      }
+    }
+
+    .mat-radio-label:hover {
+      color: $text-color !important;
+
+      .mat-radio-outer-circle {
+        border-color: $text-color !important;
+      }
+
+      .mat-radio-inner-circle {
+        background-color: $text-color !important;
+      }
+    }
+  }
+
+  &.mat-radio-disabled {
+    .mat-radio-label-content {
+      color: $text-color-25;
+    }
+
+    .mat-radio-outer-circle {
+      border-color: $text-color-25 !important;
+    }
+
+    .mat-radio-inner-circle {
+      background-color: $text-color-25 !important;
+    }
+  }
+
+  .mat-radio-persistent-ripple {
+    display: none;
+  }
+
+  .mat-radio-label-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

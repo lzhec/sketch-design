@@ -1,0 +1,46 @@
+@use 'sass:map';
+@use 'sass:meta';
+
+@import 'palettes/dark';
+@import 'palettes/light';
+
+$EMPTY: 'EMPTY';
+
+$palettes: (
+  dark: $dark-palette,
+  light: $light-palette,
+);
+
+@function app-is-valid-color-key($key) {
+  @each $palette-name, $palette in $palettes {
+    @if not(map.has-key($palette, $key)) or not (meta.type-of(map.get($palette, $key)) == color) {
+      @error 'can not find "#{$key}" in "#{$palette-name}" palette';
+    }
+  }
+
+  @return true;
+}
+
+@function app-color($key, $alpha: $EMPTY) {
+  $valid: app-is-valid-color-key($key);
+
+  @if meta.type-of($alpha) == number {
+    @return rgba(var(--app-#{$key}-rgb), $alpha);
+  }
+
+  @return var(--app-#{$key});
+}
+
+@function app-palette-val($key) {
+  @each $palette-name, $palette in $palettes {
+    @if not(map.has-key($palette, $key)) {
+      @error 'can not find "#{$key}" in "#{$palette-name}" palette';
+    }
+  }
+
+  @return var(--app-#{$key});
+}
+
+@function app-var($key) {
+  @return var(--app-#{$key});
+}

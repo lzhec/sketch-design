@@ -1,0 +1,17 @@
+@import 'theming/functions';
+
+$text-color: app-color(text-main-color);
+
+.mat-tree {
+  background-color: transparent;
+
+  &-node {
+    color: $text-color;
+  }
+}
+
+.mat-nested-tree {
+  &-node {
+    color: $text-color;
+  }
+}

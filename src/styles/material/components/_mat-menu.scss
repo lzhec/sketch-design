@@ -1,0 +1,110 @@
+@import 'core/variables';
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$text-color: app-color(text-main-color);
+$border-color-10: app-color(border-color, 0.1);
+$border-color-25: app-color(border-color, 0.25);
+$bg-color-10: app-color(bg-color, 0.1);
+$text-color-50: app-color(text-color, 0.5);
+$box-shadow: app-palette-val(box-shadow);
+
+$menu-item-size: 28px;
+$menu-item-big-size: 38px;
+
+.mat-menu-panel {
+  border-radius: 4px;
+  min-height: $menu-item-size !important;
+  margin-top: 3px;
+
+  background: $bg-main-color;
+  border: 1px solid $border-color-25;
+  box-shadow: $box-shadow;
+
+  &.--big-menu {
+    min-height: $menu-item-big-size !important;
+    padding: 10px;
+    width: 190px;
+  }
+
+  // set scrollbar styles
+  &::-webkit-scrollbar {
+    width: $scrollbar-size;
+    height: $scrollbar-size;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: $border-color-10;
+  }
+
+  .mat-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-menu-item {
+    display: flex;
+    align-items: center;
+    height: $menu-item-size !important;
+    padding: 0px 9px;
+
+    @include control-heading-font-styles();
+
+    color: $text-color;
+    background-color: transparent;
+
+    &[disabled='true'] {
+      color: $text-color-50;
+    }
+
+    &:hover:not([disabled='true']) {
+      color: $text-color;
+      background-color: $bg-color-10;
+    }
+
+    .mat-menu-submenu-icon {
+      color: $text-color;
+    }
+  }
+
+  &.--big-menu {
+    .mat-menu-item {
+      display: flex;
+      align-items: flex-start;
+      min-height: $menu-item-big-size !important;
+      height: auto !important;
+      padding: 5px 5px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      white-space: normal;
+    }
+  }
+}
+
+.mat-menu-item-submenu-trigger {
+  &::after {
+    border-width: 4px 0 4px 4px !important;
+    color: $text-color;
+  }
+
+  &[disabled='true'] {
+    &::after {
+      color: $text-color-50;
+    }
+  }
+}
+
+.app-search-menu {
+  &-item {
+    height: 32px !important;
+
+    &-icon {
+      margin-right: 8px;
+    }
+
+    &-title {
+      @include table-body-font-styles();
+    }
+  }
+}

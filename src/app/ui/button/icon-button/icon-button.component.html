@@ -1,0 +1,21 @@
+<div class="app-icon-button"
+     [ngClass]="classModifiers">
+  <app-svg *ngIf="prefixIcon"
+           [type]="prefixIconFill"
+           [subType]="subType"
+           [src]="'/assets/icons/' + prefixIcon + '.svg'"
+           [ngClass]="svgClassModifiers">
+  </app-svg>
+
+  <span class="app-icon-button__text btn-text-3 text-first-letter-up">
+    <ng-content></ng-content>
+  </span>
+
+  <app-svg *ngIf="suffixIcon"
+           class="mrgn-lft-5"
+           [type]="suffixIconFill"
+           [subType]="subType"
+           [src]="'/assets/icons/' + suffixIcon + '.svg'"
+           [ngClass]="svgClassModifiers">
+  </app-svg>
+</div>

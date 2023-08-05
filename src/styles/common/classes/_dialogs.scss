@@ -1,0 +1,61 @@
+@import 'typography/mixins';
+@import 'theming/functions';
+
+$bg-block-main-color: app-color(bg-block-main-color);
+$text-color-65: app-color(text-color, 0.65);
+$bg-main-color: app-color(bg-main-color);
+$bg-color-10: app-color(bg-color, 0.1);
+
+.app-dialog-notification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 4px;
+  background-color: $bg-main-color;
+
+  &__close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border-radius: 2px;
+    background-color: $bg-color-10;
+  }
+
+  &__icon {
+    margin-left: -36px;
+    margin-right: 10px;
+    margin-bottom: auto;
+
+    svg {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 20px 54px 10px 50px;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0px 44px 16px 50px;
+    color: $text-color-65;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 55px;
+    padding-left: 50px;
+    border-radius: 0px 0px 4px 4px;
+    background-color: $bg-block-main-color;
+  }
+}

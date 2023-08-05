@@ -1,0 +1,11 @@
+@import 'theming/functions';
+
+$success-color: app-color(success-color);
+
+.mat-progress-spinner {
+  svg {
+    circle {
+      stroke: $success-color;
+    }
+  }
+}

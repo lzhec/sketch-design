@@ -1,0 +1,61 @@
+@use 'sass:color';
+@use 'sass:meta';
+
+@import 'core/variables';
+@import './functions';
+
+@import 'palettes/dark';
+@import 'palettes/light';
+
+@mixin app-create-theme-vars() {
+  $themes: (
+    'app-theme-dark': $dark-palette,
+    'app-theme-light': $light-palette,
+  );
+
+  :root {
+    @each $theme, $palette in $themes {
+      &.#{$theme} {
+        @each $key, $value in $palette {
+          --app-#{$key}: #{$value};
+
+          @if meta.type-of($value) == color {
+            --app-#{$key}-rgb: #{color.red($value)}, #{color.green($value)}, #{color.blue($value)};
+          }
+
+          @if $theme == app-theme-dark {
+            color-scheme: dark;
+          }
+
+          @if $theme == app-theme-light {
+            color-scheme: light;
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin app-set-themes() {
+  $text-color: app-color(text-main-color);
+
+  html {
+    color: $text-color;
+    background-color: app-color(bg-main-color);
+
+    body {
+      background: inherit;
+
+      // set scrollbar styles
+      &::-webkit-scrollbar {
+        width: $scrollbar-size;
+        height: $scrollbar-size;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        border-radius: 2px;
+        background: app-color(border-color, 0.1);
+      }
+    }
+  }
+}

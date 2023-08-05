@@ -1,0 +1,135 @@
+@import 'theming/functions';
+
+$bg-main-color: app-color(bg-main-color);
+$bg-color: app-color(bg-color);
+$bg-color-05: app-color(bg-color, 0.05);
+$bg-color-10: app-color(bg-color, 0.1);
+$bg-color-25: app-color(bg-color, 0.25);
+$bg-color-50: app-color(bg-color, 0.5);
+$bg-color-65: app-color(bg-color, 0.65);
+$success-color: app-color(success-color);
+$success-color-10: app-color(success-color, 0.1);
+$success-color-17: app-color(success-color, 0.17);
+$success-color-50: app-color(success-color, 0.5);
+$danger-color: app-color(danger-color);
+$danger-color-10: app-color(danger-color, 0.1);
+$danger-color-17: app-color(danger-color, 0.17);
+$danger-color-50: app-color(danger-color, 0.5);
+$warning-color: app-color(warning-color);
+$warning-color-10: app-color(warning-color, 0.1);
+$warning-color-17: app-color(warning-color, 0.17);
+$warning-color-50: app-color(warning-color, 0.5);
+$bg-block-empty-color: app-color(bg-block-empty-color);
+$bg-block-main-color: app-color(bg-block-main-color);
+$bg-block-0-color: app-color(bg-block-0-color);
+$bg-block-1-color: app-color(bg-block-1-color);
+
+.app-bg-main {
+  background-color: $bg-main-color;
+}
+
+.app-bg {
+  background-color: $bg-color;
+
+  &-05 {
+    background-color: $bg-color-05;
+  }
+
+  &-10 {
+    background-color: $bg-color-10;
+  }
+
+  &-25 {
+    background-color: $bg-color-25;
+  }
+
+  &-50 {
+    background-color: $bg-color-50;
+  }
+
+  &-65 {
+    background-color: $bg-color-65;
+  }
+
+  &-inverse {
+    background-color: $bg-color;
+  }
+
+  &-hover {
+    &:hover {
+      background-color: $bg-color-05;
+    }
+  }
+}
+
+.app-no-bg {
+  background-color: transparent !important;
+}
+
+.app-bg-success {
+  background-color: $success-color;
+
+  &-10 {
+    background-color: $success-color-10;
+  }
+
+  &-17 {
+    background-color: $success-color-17;
+  }
+
+  &-50 {
+    background-color: $success-color-50;
+  }
+}
+
+.app-bg-danger {
+  background-color: $danger-color;
+
+  &-10 {
+    background-color: $danger-color-10;
+  }
+
+  &-17 {
+    background-color: $danger-color-17;
+  }
+
+  &-50 {
+    background-color: $danger-color-50;
+  }
+}
+
+.app-bg-warning {
+  background-color: $warning-color;
+
+  &-10 {
+    background-color: $warning-color-10;
+  }
+
+  &-17 {
+    background-color: $warning-color-17;
+  }
+
+  &-50 {
+    background-color: $warning-color-50;
+  }
+}
+
+.app-bg-backdrop {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+
+.app-bg-block-main {
+  background-color: $bg-block-main-color;
+}
+
+.app-bg-block-empty {
+  background-color: $bg-block-empty-color;
+}
+
+.app-bg-block-0 {
+  background-color: $bg-block-0-color !important;
+}
+
+.app-bg-block-1 {
+  background-color: $bg-block-1-color !important;
+}
