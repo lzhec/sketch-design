@@ -29,7 +29,13 @@ export class CanvasComponent implements AfterViewInit {
     this.mouseDown$ = fromEvent(this.canvas.nativeElement, 'mousedown');
 
     this.mouseDown$.subscribe((event) => {
+      console.log('MOUSE DOWN');
       const canvas = event.target as HTMLCanvasElement;
+
+      if (!canvas.id) {
+        return;
+      }
+
       const ctx = canvas.getContext('2d');
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
@@ -88,29 +94,49 @@ export class CanvasComponent implements AfterViewInit {
     reader.readAsDataURL(file);
   }
 
-  public listenToMoveCanvas(canvas: HTMLCanvasElement): void {
+  private getCanvasCoords(canvas: HTMLCanvasElement): {
+    top: number;
+    left: number;
+  } {
+    const box = canvas.getBoundingClientRect();
+
+    return {
+      top: box.top + pageYOffset,
+      left: box.left + pageXOffset,
+    };
+  }
+
+  private listenToMoveCanvas(canvas: HTMLCanvasElement): void {
     const mouseMove$: Observable<Event> = fromEvent(canvas, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(canvas, 'mouseup');
     const dragStart$ = this.mouseDown$;
     const dragMove$ = dragStart$.pipe(
-      switchMap((start: any) =>
-        mouseMove$.pipe(
-          map((moveEvent: any) => ({
-            originalEvent: moveEvent,
-            deltaX: moveEvent.pageX - start.pageX,
-            deltaY: moveEvent.pageY - start.pageY,
-            startOffsetX: start.offsetX,
-            startOffsetY: start.offsetY,
-          })),
+      switchMap((start: MouseEvent) => {
+        const coords = this.getCanvasCoords(canvas);
+
+        return mouseMove$.pipe(
+          map((moveEvent: MouseEvent) => {
+            return {
+              originalEvent: moveEvent,
+              deltaX: moveEvent.pageX - start.pageX + coords.left,
+              deltaY: moveEvent.pageY - start.pageY + coords.top,
+              startOffsetX: start.offsetX,
+              startOffsetY: start.offsetY,
+            };
+          }),
+          tap((moveEvent) => {
+            canvas.style.left = `${moveEvent.deltaX}px`;
+            canvas.style.top = `${moveEvent.deltaY}px`;
+          }),
           takeUntil(mouseUp$),
-        ),
-      ),
+        );
+      }),
     );
     const dragEnd$ = dragStart$.pipe(
-      switchMap((start: any) =>
+      switchMap((start: MouseEvent) =>
         mouseMove$.pipe(
           startWith(start),
-          map((moveEvent) => ({
+          map((moveEvent: MouseEvent) => ({
             originalEvent: moveEvent,
             deltaX: moveEvent.pageX - start.pageX,
             deltaY: moveEvent.pageY - start.pageY,
@@ -127,25 +153,16 @@ export class CanvasComponent implements AfterViewInit {
       dragStart$.pipe(
         tap((event) => {
           console.log('START DRAG', event);
-          event.target.dispatchEvent(
-            new CustomEvent('mydragstart', { detail: event }),
-          );
         }),
       ),
       dragMove$.pipe(
         tap((event: any) => {
           console.log('DRAG MOVE', event);
-          event.originalEvent.target.dispatchEvent(
-            new CustomEvent('mydragmove', { detail: event }),
-          );
         }),
       ),
       dragEnd$.pipe(
         tap((event: any) => {
           console.log('DRAG END', event);
-          event.target.dispatchEvent(
-            new CustomEvent('mydragend', { detail: event }),
-          );
         }),
       ),
     ]).subscribe();
