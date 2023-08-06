@@ -9,5 +9,7 @@
   &__canvas {
     border: 1px solid black;
     background-color: #fff;
+    overflow: hidden;
+    cursor: move;
   }
 }

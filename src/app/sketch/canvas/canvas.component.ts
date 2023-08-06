@@ -1,7 +1,17 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { Layer } from '../sketch.types';
 import { SketchState } from '../sketch.state';
-import { fromEvent } from 'rxjs';
+import {
+  Observable,
+  combineLatest,
+  fromEvent,
+  last,
+  map,
+  startWith,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs';
 
 @Component({
   selector: 'app-canvas',
@@ -9,45 +19,32 @@ import { fromEvent } from 'rxjs';
   styleUrls: ['./canvas.component.scss'],
 })
 export class CanvasComponent implements AfterViewInit {
-  @ViewChild('viewport') canvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('viewport') canvas: ElementRef<HTMLDivElement>;
+
+  private mouseDown$: Observable<Event>;
 
   constructor(private state: SketchState) {}
 
   public ngAfterViewInit(): void {
-    fromEvent(this.canvas.nativeElement, 'mousedown').subscribe(
-      (event: any) => {
-        const ctx = this.canvas.nativeElement.getContext('2d');
-        const x = event.offsetX;
-        const y = event.offsetY;
-        const cursorPixel = ctx.getImageData(x, y, 1, 1).data;
-        const layers = this.state.layers;
+    this.mouseDown$ = fromEvent(this.canvas.nativeElement, 'mousedown');
 
-        for (let i = 0; i < layers.length; i++) {
-          const data = layers[i].data;
-          const imgPixel = data.getImageData(x, y, 1, 1).data;
-          console.log(cursorPixel, imgPixel);
-
-          if (
-            imgPixel[0] === cursorPixel[0] &&
-            imgPixel[1] === cursorPixel[1] &&
-            imgPixel[2] === cursorPixel[2]
-          ) {
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, 0, data.canvas.width, data.canvas.height);
-            ctx.drawImage(data.canvas, 0, 0);
-          }
-        }
-      },
-    );
+    this.mouseDown$.subscribe((event) => {
+      const canvas = event.target as HTMLCanvasElement;
+      const ctx = canvas.getContext('2d');
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(canvas, 0, 0);
+      this.listenToMoveCanvas(canvas);
+    });
   }
 
-  public createLayer(img: HTMLImageElement): CanvasRenderingContext2D {
+  public createLayer(img: HTMLImageElement): HTMLCanvasElement {
     const layer = document.createElement('canvas');
-    layer.width = img.width;
-    layer.height = img.height;
+    layer.width = img.width > 800 ? 800 : img.width;
+    layer.height = img.height > 600 ? 600 : img.height;
 
-    return layer.getContext('2d');
+    return layer;
   }
 
   public drawLayer(context: CanvasRenderingContext2D, layer: any): void {
@@ -56,7 +53,6 @@ export class CanvasComponent implements AfterViewInit {
 
   public addImage(file: File): void {
     const reader = new FileReader();
-    const context = this.canvas.nativeElement.getContext('2d');
 
     reader.onload = (e: any) => {
       let originalImg = new Image();
@@ -64,14 +60,22 @@ export class CanvasComponent implements AfterViewInit {
 
       originalImg.onload = () => {
         const layer = this.createLayer(originalImg);
+        const ctx = layer.getContext('2d');
 
-        layer.drawImage(originalImg, 0, 0);
-        this.drawLayer(context, layer);
+        this.state.maxLayer++;
+
+        ctx.drawImage(originalImg, 0, 0);
+        layer.style.position = 'absolute';
+        layer.style.zIndex = this.state.maxLayer.toString();
+        layer.style.overflow = 'auto';
+        layer.id = new Date().getDate.toString();
+        this.canvas.nativeElement.appendChild(layer);
 
         const newLayer: Layer = {
-          name: new Date().getDate.toString(),
+          name: layer.id,
           type: 'image',
-          data: layer,
+          level: this.state.maxLayer,
+          data: ctx,
           width: originalImg.naturalWidth || originalImg.width,
           height: originalImg.naturalHeight || originalImg.height,
           originalWidth: originalImg.naturalWidth || originalImg.width,
@@ -82,5 +86,68 @@ export class CanvasComponent implements AfterViewInit {
       };
     };
     reader.readAsDataURL(file);
+  }
+
+  public listenToMoveCanvas(canvas: HTMLCanvasElement): void {
+    const mouseMove$: Observable<Event> = fromEvent(canvas, 'mousemove');
+    const mouseUp$: Observable<Event> = fromEvent(canvas, 'mouseup');
+    const dragStart$ = this.mouseDown$;
+    const dragMove$ = dragStart$.pipe(
+      switchMap((start: any) =>
+        mouseMove$.pipe(
+          map((moveEvent: any) => ({
+            originalEvent: moveEvent,
+            deltaX: moveEvent.pageX - start.pageX,
+            deltaY: moveEvent.pageY - start.pageY,
+            startOffsetX: start.offsetX,
+            startOffsetY: start.offsetY,
+          })),
+          takeUntil(mouseUp$),
+        ),
+      ),
+    );
+    const dragEnd$ = dragStart$.pipe(
+      switchMap((start: any) =>
+        mouseMove$.pipe(
+          startWith(start),
+          map((moveEvent) => ({
+            originalEvent: moveEvent,
+            deltaX: moveEvent.pageX - start.pageX,
+            deltaY: moveEvent.pageY - start.pageY,
+            startOffsetX: start.offsetX,
+            startOffsetY: start.offsetY,
+          })),
+          takeUntil(mouseUp$),
+          last(),
+        ),
+      ),
+    );
+
+    combineLatest([
+      dragStart$.pipe(
+        tap((event) => {
+          console.log('START DRAG', event);
+          event.target.dispatchEvent(
+            new CustomEvent('mydragstart', { detail: event }),
+          );
+        }),
+      ),
+      dragMove$.pipe(
+        tap((event: any) => {
+          console.log('DRAG MOVE', event);
+          event.originalEvent.target.dispatchEvent(
+            new CustomEvent('mydragmove', { detail: event }),
+          );
+        }),
+      ),
+      dragEnd$.pipe(
+        tap((event: any) => {
+          console.log('DRAG END', event);
+          event.target.dispatchEvent(
+            new CustomEvent('mydragend', { detail: event }),
+          );
+        }),
+      ),
+    ]).subscribe();
   }
 }
