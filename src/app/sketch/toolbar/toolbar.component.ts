@@ -24,7 +24,7 @@ export class ToolbarComponent {
     const file = (<HTMLInputElement>event.currentTarget)?.files[0];
 
     if (file) {
-      this.toolbarEvent.next({ event: 'add', file: file });
+      this.toolbarEvent.next({ event: 'add', entity: file });
     }
   }
 

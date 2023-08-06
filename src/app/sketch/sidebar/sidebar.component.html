@@ -1,0 +1,4 @@
+<div *ngFor="let layer of state.layers$ | async"
+    (click)="selectLayer(layer)">
+  {{ layer.name }}
+</div>

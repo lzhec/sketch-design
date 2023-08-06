@@ -9,5 +9,5 @@ export type ToolbarEventType =
 
 export interface ToolbarEvent {
   event: ToolbarEventType;
-  file?: File;
+  entity?: File | string;
 }

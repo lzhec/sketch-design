@@ -12,6 +12,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { SidebarEvent } from '../sidebar/sidebar.types';
 
 @Component({
   selector: 'app-canvas',
@@ -28,7 +29,7 @@ export class CanvasComponent implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.mouseDown$ = fromEvent(this.canvas.nativeElement, 'mousedown');
 
-    this.mouseDown$.subscribe((event) => {
+    this.mouseDown$.subscribe((event: MouseEvent) => {
       console.log('MOUSE DOWN');
       const canvas = event.target as HTMLCanvasElement;
 
@@ -36,13 +37,29 @@ export class CanvasComponent implements AfterViewInit {
         return;
       }
 
-      const ctx = canvas.getContext('2d');
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(canvas, 0, 0);
-      this.listenToMoveCanvas(canvas);
+      this.selectLayer(canvas);
     });
+  }
+
+  public selectLayerHandler(layer: Layer): void {
+    const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
+      `[id="${layer.id}"]`,
+    );
+
+    if (!canvas) {
+      return;
+    }
+
+    this.selectLayer(canvas);
+  }
+
+  public selectLayer(canvas: HTMLCanvasElement): void {
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(canvas, 0, 0);
+    this.listenToMoveCanvas(canvas);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -74,11 +91,12 @@ export class CanvasComponent implements AfterViewInit {
         layer.style.position = 'absolute';
         layer.style.zIndex = this.state.maxLayer.toString();
         layer.style.overflow = 'auto';
-        layer.id = new Date().getDate.toString();
+        layer.id = new Date().valueOf().toString();
         this.canvas.nativeElement.appendChild(layer);
 
         const newLayer: Layer = {
-          name: layer.id,
+          id: layer.id,
+          name: `layer${this.state.maxLayer}`,
           type: 'image',
           level: this.state.maxLayer,
           data: ctx,
@@ -88,7 +106,10 @@ export class CanvasComponent implements AfterViewInit {
           originalHeight: originalImg.naturalHeight || originalImg.height,
         };
 
-        this.state.layers.push(newLayer);
+        const layers = this.state.layers$.value;
+
+        layers.push(newLayer);
+        this.state.layers$.next(layers);
       };
     };
     reader.readAsDataURL(file);
@@ -165,6 +186,8 @@ export class CanvasComponent implements AfterViewInit {
           console.log('DRAG END', event);
         }),
       ),
-    ]).subscribe();
+    ])
+      .pipe(takeUntil(mouseUp$))
+      .subscribe();
   }
 }
