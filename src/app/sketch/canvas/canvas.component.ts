@@ -7,8 +7,10 @@ import {
   ViewChild,
 } from '@angular/core';
 import {
+  BehaviorSubject,
   Observable,
   combineLatest,
+  filter,
   fromEvent,
   last,
   map,
@@ -16,6 +18,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  zip,
 } from 'rxjs';
 import { Layer } from '../sketch.types';
 import { SketchState } from '../sketch.state';
@@ -32,6 +35,8 @@ export class CanvasComponent implements AfterViewInit {
   @Output() public downloadEvent = new EventEmitter<void>();
 
   private mouseDown$: Observable<Event>;
+  private currentMousedown$ = new BehaviorSubject<any>(null);
+  private currentFrame$ = new BehaviorSubject<any>(null);
 
   constructor(private state: SketchState) {}
 
@@ -45,7 +50,7 @@ export class CanvasComponent implements AfterViewInit {
       if (!canvas.id) {
         return;
       }
-
+      this.currentMousedown$.next(event);
       this.selectLayer(canvas);
     });
   }
@@ -66,6 +71,14 @@ export class CanvasComponent implements AfterViewInit {
     let frame: HTMLDivElement;
 
     if (!this.state.currentLayer || this.state.currentLayer.id !== canvas.id) {
+      if (this.state.currentLayer) {
+        const previousFrame = this.canvas.nativeElement.querySelector(
+          `[id="sketch-frame-${this.state.currentLayer.id}"]`,
+        );
+
+        this.canvas.nativeElement.removeChild(previousFrame);
+      }
+
       this.state.currentLayer = this.state.layers$.value.find(
         (layer) => layer.id === canvas.id,
       );
@@ -88,7 +101,9 @@ export class CanvasComponent implements AfterViewInit {
       );
     }
 
-    this.listenToMoveCanvas(canvas, frame);
+    this.currentFrame$.next(frame);
+
+    this.listenToMoveCanvas();
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -157,25 +172,25 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToMoveCanvas(
-    canvas: HTMLCanvasElement,
-    frame: HTMLDivElement,
-  ): void {
-    const mouseMove$: Observable<Event> = fromEvent(canvas, 'mousemove');
-    const mouseUp$: Observable<Event> = fromEvent(canvas, 'mouseup');
-    const dragStart$ = this.mouseDown$;
+  private listenToMoveCanvas(): void {
+    const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
+    const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
+    const dragStart$ = zip([this.currentMousedown$, this.currentFrame$]).pipe(
+      filter(([event, frame]) => !!event && !!frame),
+    );
     const dragMove$ = dragStart$.pipe(
-      switchMap((start: MouseEvent) => {
+      switchMap(([event, frame]) => {
+        const canvas = event.target;
         const coords = this.getCanvasCoords(canvas);
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => {
             return {
               originalEvent: moveEvent,
-              deltaX: moveEvent.pageX - start.pageX + coords.left,
-              deltaY: moveEvent.pageY - start.pageY + coords.top,
-              startOffsetX: start.offsetX,
-              startOffsetY: start.offsetY,
+              deltaX: moveEvent.pageX - event.pageX + coords.left,
+              deltaY: moveEvent.pageY - event.pageY + coords.top,
+              startOffsetX: event.offsetX,
+              startOffsetY: event.offsetY,
             };
           }),
           tap((moveEvent) => {
@@ -189,15 +204,15 @@ export class CanvasComponent implements AfterViewInit {
       }),
     );
     const dragEnd$ = dragStart$.pipe(
-      switchMap((start: MouseEvent) =>
+      switchMap(([event, frame]) =>
         mouseMove$.pipe(
-          startWith(start),
+          startWith(event),
           map((moveEvent: MouseEvent) => ({
             originalEvent: moveEvent,
-            deltaX: moveEvent.pageX - start.pageX,
-            deltaY: moveEvent.pageY - start.pageY,
-            startOffsetX: start.offsetX,
-            startOffsetY: start.offsetY,
+            deltaX: moveEvent.pageX - event.pageX,
+            deltaY: moveEvent.pageY - event.pageY,
+            startOffsetX: event.offsetX,
+            startOffsetY: event.offsetY,
           })),
           takeUntil(mouseUp$),
           last(),
@@ -227,7 +242,7 @@ export class CanvasComponent implements AfterViewInit {
         }),
       ),
     ])
-      // .pipe(takeUntil(mouseUp$))
+      .pipe(takeUntil(mouseUp$))
       .subscribe();
   }
 }
