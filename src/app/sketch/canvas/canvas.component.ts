@@ -1,6 +1,11 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { Layer } from '../sketch.types';
-import { SketchState } from '../sketch.state';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import {
   Observable,
   combineLatest,
@@ -12,7 +17,9 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { SidebarEvent } from '../sidebar/sidebar.types';
+import { Layer } from '../sketch.types';
+import { SketchState } from '../sketch.state';
+import { MoveEvent } from './canvas.types';
 
 @Component({
   selector: 'app-canvas',
@@ -22,6 +29,8 @@ import { SidebarEvent } from '../sidebar/sidebar.types';
 export class CanvasComponent implements AfterViewInit {
   @ViewChild('viewport') canvas: ElementRef<HTMLDivElement>;
 
+  @Output() public downloadEvent = new EventEmitter<void>();
+
   private mouseDown$: Observable<Event>;
 
   constructor(private state: SketchState) {}
@@ -30,7 +39,7 @@ export class CanvasComponent implements AfterViewInit {
     this.mouseDown$ = fromEvent(this.canvas.nativeElement, 'mousedown');
 
     this.mouseDown$.subscribe((event: MouseEvent) => {
-      console.log('MOUSE DOWN');
+      console.log('MOUSE DOWN', event);
       const canvas = event.target as HTMLCanvasElement;
 
       if (!canvas.id) {
@@ -54,12 +63,32 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   public selectLayer(canvas: HTMLCanvasElement): void {
-    const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(canvas, 0, 0);
-    this.listenToMoveCanvas(canvas);
+    let frame: HTMLDivElement;
+
+    if (!this.state.currentLayer || this.state.currentLayer.id !== canvas.id) {
+      this.state.currentLayer = this.state.layers$.value.find(
+        (layer) => layer.id === canvas.id,
+      );
+
+      frame = document.createElement('div');
+      frame.id = `sketch-frame-${canvas.id}`;
+      frame.style.left = `${canvas.offsetLeft}px`;
+      frame.style.top = `${canvas.offsetTop}px`;
+      frame.style.width = `${canvas.width}px`;
+      frame.style.height = `${canvas.height}px`;
+      frame.style.position = 'absolute';
+      frame.style.zIndex = '999';
+      frame.style.border = 'red 3px solid';
+      frame.style.pointerEvents = 'none';
+
+      this.canvas.nativeElement.appendChild(frame);
+    } else {
+      frame = this.canvas.nativeElement.querySelector(
+        `[id="sketch-frame-${canvas.id}"]`,
+      );
+    }
+
+    this.listenToMoveCanvas(canvas, frame);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -85,20 +114,20 @@ export class CanvasComponent implements AfterViewInit {
         const layer = this.createLayer(originalImg);
         const ctx = layer.getContext('2d');
 
-        this.state.maxLayer++;
+        this.state.maxLayerIndex++;
 
         ctx.drawImage(originalImg, 0, 0);
         layer.style.position = 'absolute';
-        layer.style.zIndex = this.state.maxLayer.toString();
+        layer.style.zIndex = this.state.maxLayerIndex.toString();
         layer.style.overflow = 'auto';
         layer.id = new Date().valueOf().toString();
         this.canvas.nativeElement.appendChild(layer);
 
         const newLayer: Layer = {
           id: layer.id,
-          name: `layer${this.state.maxLayer}`,
+          name: `layer${this.state.maxLayerIndex}`,
           type: 'image',
-          level: this.state.maxLayer,
+          level: this.state.maxLayerIndex,
           data: ctx,
           width: originalImg.naturalWidth || originalImg.width,
           height: originalImg.naturalHeight || originalImg.height,
@@ -110,6 +139,7 @@ export class CanvasComponent implements AfterViewInit {
 
         layers.push(newLayer);
         this.state.layers$.next(layers);
+        this.downloadEvent.next();
       };
     };
     reader.readAsDataURL(file);
@@ -127,7 +157,10 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToMoveCanvas(canvas: HTMLCanvasElement): void {
+  private listenToMoveCanvas(
+    canvas: HTMLCanvasElement,
+    frame: HTMLDivElement,
+  ): void {
     const mouseMove$: Observable<Event> = fromEvent(canvas, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(canvas, 'mouseup');
     const dragStart$ = this.mouseDown$;
@@ -148,6 +181,8 @@ export class CanvasComponent implements AfterViewInit {
           tap((moveEvent) => {
             canvas.style.left = `${moveEvent.deltaX}px`;
             canvas.style.top = `${moveEvent.deltaY}px`;
+            frame.style.left = `${moveEvent.deltaX}px`;
+            frame.style.top = `${moveEvent.deltaY}px`;
           }),
           takeUntil(mouseUp$),
         );
@@ -177,17 +212,22 @@ export class CanvasComponent implements AfterViewInit {
         }),
       ),
       dragMove$.pipe(
-        tap((event: any) => {
+        tap((event: MoveEvent) => {
           console.log('DRAG MOVE', event);
         }),
       ),
       dragEnd$.pipe(
-        tap((event: any) => {
+        tap((event: MoveEvent) => {
           console.log('DRAG END', event);
+          const canvas = event.originalEvent.target as HTMLCanvasElement;
+
+          if (!canvas.id) {
+            return;
+          }
         }),
       ),
     ])
-      .pipe(takeUntil(mouseUp$))
+      // .pipe(takeUntil(mouseUp$))
       .subscribe();
   }
 }

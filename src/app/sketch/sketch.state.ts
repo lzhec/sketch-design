@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 @Injectable()
 export class SketchState {
   public layers$ = new BehaviorSubject<Layer[]>([]);
-  public currentLayer = -1;
-  public maxLayer = -1;
+  public currentLayer: Layer;
+  public currentLayerIndex = -1;
+  public maxLayerIndex = -1;
 }

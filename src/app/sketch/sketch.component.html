@@ -1,5 +1,11 @@
 <div style="display: flex">
-  <app-toolbar (toolbarEvent)="toolbarEventHandler($event)"></app-toolbar>
-  <app-canvas #canvas></app-canvas>
+  <app-toolbar #toolbar
+              (toolbarEvent)="toolbarEventHandler($event)">
+  </app-toolbar>
+
+  <app-canvas #canvas
+              (downloadEvent)="toolbar.downloadEventHandler()">
+  </app-canvas>
+
   <app-sidebar (sidebarEvent)="sidebarEventHandler($event)"></app-sidebar>
 </div>

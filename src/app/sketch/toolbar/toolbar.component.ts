@@ -1,12 +1,12 @@
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   Output,
+  ViewChild,
 } from '@angular/core';
 import { ToolbarEvent } from './toolbar.types';
-import { fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-toolbar',
@@ -14,6 +14,8 @@ import { fromEvent } from 'rxjs';
   styleUrls: ['./toolbar.component.scss'],
 })
 export class ToolbarComponent {
+  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement>;
+
   @Output() public toolbarEvent = new EventEmitter<ToolbarEvent>();
 
   public readonly acceptFileFormats = '.png, .jpg, .jpe, .jpeg';
@@ -28,7 +30,7 @@ export class ToolbarComponent {
     }
   }
 
-  public selectLayer(event): void {
-    console.log(event);
+  public downloadEventHandler(): void {
+    this.fileInput.nativeElement.value = null;
   }
 }
