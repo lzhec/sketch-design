@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   EventEmitter,
@@ -24,40 +25,51 @@ import {
 import { Layer } from '../sketch.types';
 import { SketchState } from '../sketch.state';
 import { MoveEvent } from './canvas.types';
+import { ScalingToolPointType, Tool } from '../toolbar/toolbar.types';
 
 @Component({
   selector: 'app-canvas',
   templateUrl: './canvas.component.html',
   styleUrls: ['./canvas.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CanvasComponent implements AfterViewInit {
   @ViewChild('viewport') canvas: ElementRef<HTMLDivElement>;
 
   @Output() public downloadEvent = new EventEmitter<void>();
 
-  private currentMousedown$ = new BehaviorSubject<any>(null);
+  private mousedown$ = new BehaviorSubject<MouseEvent>(null);
   private currentCanvas$ = new BehaviorSubject<HTMLCanvasElement>(null);
   private currentFrame$ = new BehaviorSubject<HTMLDivElement>(null);
+
+  public Tool = Tool;
+  public ScalingToolPointType = ScalingToolPointType;
 
   constructor(private state: SketchState) {}
 
   public ngAfterViewInit(): void {
-    fromEvent(this.canvas.nativeElement, 'mousedown').subscribe(
-      (event: MouseEvent) => {
-        console.log('MOUSE DOWN', event);
+    fromEvent(this.canvas.nativeElement, 'mousedown')
+      .pipe(filter((event) => event['which'] === 1))
+      .subscribe((event: MouseEvent) => {
+        // console.log('MOUSE DOWN', event);
         const element = event.target as HTMLCanvasElement | HTMLDivElement;
+        console.log(element);
 
         if (!element.id) {
           return;
         }
 
-        this.currentMousedown$.next(event);
+        this.mousedown$.next(event);
 
-        element.hasAttribute('sketch-frame')
-          ? this.selectLayerByFrame(element as HTMLDivElement)
-          : this.selectLayerByCanvas(element as HTMLCanvasElement);
-      },
-    );
+        const type = element.getAttribute('type');
+        console.log(type);
+
+        if (type) {
+          this.selectLayerByFrame(element as HTMLDivElement, type as Tool);
+        } else {
+          this.selectLayerByCanvas(element as HTMLCanvasElement);
+        }
+      });
   }
 
   public selectLayerHandler(layer: Layer): void {
@@ -72,13 +84,22 @@ export class CanvasComponent implements AfterViewInit {
     this.selectLayerByCanvas(canvas);
   }
 
-  private selectLayerByFrame(frame: HTMLDivElement): void {
+  private selectLayerByFrame(frame: HTMLDivElement, toolType: Tool): void {
     this.currentCanvas$.next(
       this.canvas.nativeElement.querySelector(
         `[id="${this.state.currentLayer.id}"]`,
       ),
     );
-    this.listenToMoveCanvas();
+
+    switch (toolType) {
+      case Tool.Frame:
+        this.listenToMoveCanvas();
+        break;
+
+      case Tool.Scaling:
+        this.listenToScalingCanvas();
+        break;
+    }
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
@@ -98,17 +119,45 @@ export class CanvasComponent implements AfterViewInit {
       );
 
       frame = document.createElement('div');
+      // const coords = this.getCanvasCoords(canvas);
 
-      frame.setAttribute('sketch-frame', 'true');
+      const tl = document.createElement('div');
+      const tr = document.createElement('div');
+      const bl = document.createElement('div');
+      const br = document.createElement('div');
+      const rot = document.createElement('div');
+
+      frame.setAttribute('type', Tool.Frame);
+      frame.classList.add(...['app-sketch-frame', 'app-frame-border']);
       frame.id = `sketch-frame-${canvas.id}`;
+      // frame.style.left = `${coords.left}px`;
+      // frame.style.top = `${coords.top}px`;
       frame.style.left = `${canvas.offsetLeft}px`;
       frame.style.top = `${canvas.offsetTop}px`;
       frame.style.width = `${canvas.width}px`;
       frame.style.height = `${canvas.height}px`;
-      frame.style.position = 'absolute';
-      frame.style.zIndex = '999';
-      frame.style.border = 'red 3px solid';
-      // frame.style.pointerEvents = 'none';
+
+      tl.style.left = '-10px';
+      tl.style.top = '-10px';
+      tr.style.left = `${canvas.width - 10}px`;
+      tr.style.top = '-10px';
+      bl.style.left = '-10px';
+      bl.style.top = `${canvas.height - 10}px`;
+      br.style.left = `${canvas.width - 10}px`;
+      br.style.top = `${canvas.height - 10}px`;
+
+      const scalePoints = [tl, tr, bl, br];
+
+      scalePoints.forEach((point) => {
+        point.classList.add(
+          ...['app-sketch-frame-scale-point', 'app-frame-border'],
+        );
+        point.setAttribute('type', Tool.Scaling);
+        point.style.width = '20px';
+        point.style.height = '20px';
+
+        frame.appendChild(point);
+      });
 
       this.canvas.nativeElement.appendChild(frame);
     } else {
@@ -189,11 +238,13 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
+  private listenToScalingCanvas(): void {}
+
   private listenToMoveCanvas(): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
     const dragStart$ = zip([
-      this.currentMousedown$,
+      this.mousedown$,
       this.currentCanvas$,
       this.currentFrame$,
     ]).pipe(filter(([event, canvas, frame]) => !!event && !!canvas && !!frame));
@@ -240,28 +291,23 @@ export class CanvasComponent implements AfterViewInit {
 
     combineLatest([
       dragStart$.pipe(
-        tap((event) => {
-          console.log('START DRAG', event);
-        }),
+        // tap((event) => {
+        //   console.log('START DRAG', event);
+        // }),
         takeUntil(mouseUp$),
       ),
       dragMove$.pipe(
-        tap((event: MoveEvent) => {
-          console.log('DRAG MOVE', event);
-        }),
+        // tap((event: MoveEvent) => {
+        //   console.log('DRAG MOVE', event);
+        // }),
         takeUntil(mouseUp$),
       ),
       dragEnd$.pipe(
         first(),
         tap((event: MoveEvent) => {
-          console.log('DRAG END', event);
-          const canvas = event.originalEvent.target as HTMLCanvasElement;
+          // console.log('DRAG END', event);
 
-          if (!canvas.id) {
-            return;
-          }
-
-          this.currentMousedown$.next(null);
+          this.mousedown$.next(null);
           this.currentCanvas$.next(null);
         }),
       ),

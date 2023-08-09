@@ -8,6 +8,7 @@ import { SketchRoutingModule } from './sketch-routing.module';
 import { ButtonModule } from '@ui/button/button.module';
 import { SketchState } from './sketch.state';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +17,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     SettingsbarComponent,
     CanvasComponent,
     SidebarComponent,
+    MenuComponent,
   ],
   imports: [CommonModule, SketchRoutingModule, ButtonModule],
   providers: [SketchState],

@@ -1,0 +1,9 @@
+<app-button (click)="fileInput.click()">
+  Загрузить
+</app-button>
+
+<input #fileInput
+       type="file"
+       hidden
+       (change)="selectFile($event)"
+       accept="{{ acceptFileFormats }}" />

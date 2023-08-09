@@ -1,10 +1,12 @@
-<div style="display: flex">
+<app-menu #menu (addFileEvent)="menuEventHandler($event)"></app-menu>
+
+<div style="display: flex; height: 100%;">
   <app-toolbar #toolbar
-              (toolbarEvent)="toolbarEventHandler($event)">
+              >
   </app-toolbar>
 
   <app-canvas #canvas
-              (downloadEvent)="toolbar.downloadEventHandler()">
+              (downloadEvent)="menu.downloadEventHandler()">
   </app-canvas>
 
   <app-sidebar (sidebarEvent)="sidebarEventHandler($event)"></app-sidebar>

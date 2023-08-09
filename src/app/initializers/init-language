@@ -1,0 +1,5 @@
+import { TranslateService } from "@shared/translates/translate.service";
+
+export function initLanguage(translateService: TranslateService): Function {
+  return (): Promise<void> => translateService.initLanguage();
+}

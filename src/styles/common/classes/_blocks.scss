@@ -1,4 +1,4 @@
-@import 'theming/functions';
+@import "theming/functions";
 
 $bg-color-05: app-color(bg-color, 0.05);
 $success-text-color: app-color(success-color);
@@ -104,4 +104,11 @@ $bg-block-1-color: app-color(bg-block-1-color);
 
   width: 100%;
   height: 74vh;
+}
+
+.app-sketch-frame,
+.app-sketch-frame-scale-point {
+  // position: fixed;
+  position: absolute;
+  z-index: 999;
 }

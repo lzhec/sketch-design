@@ -25,7 +25,7 @@ export class ThemeState extends BaseObject {
   public readonly theme$: BehaviorSubject<Theme>;
   public readonly colors$: BehaviorSubject<ColorsMap>;
   public readonly logo$ = new BehaviorSubject<string>(
-      '/assets/img/logo/logo.svg',
+    '/assets/img/logo/logo.svg',
   );
 
   private initialTheme: Theme;
@@ -45,7 +45,9 @@ export class ThemeState extends BaseObject {
     this.r = this.rendererFactory.createRenderer(null, null);
 
     this.initialTheme = Theme.dark;
-    this.colors$ = new BehaviorSubject<ColorsMap>(this.themeColors[this.initialTheme]);
+    this.colors$ = new BehaviorSubject<ColorsMap>(
+      this.themeColors[this.initialTheme],
+    );
     this.theme$ = new BehaviorSubject<Theme>(this.initialTheme);
 
     this.theme$.pipe(takeUntil(this.destroy$)).subscribe((theme) => {
@@ -66,8 +68,12 @@ export class ThemeState extends BaseObject {
   }
 
   public init(): void {
-    const localStorageTheme = localStorage.getItem(LocalStorageConstants.CurrentTheme);
-    const findTheme = Object.values(Theme).find((theme) => theme === localStorageTheme);
+    const localStorageTheme = localStorage.getItem(
+      LocalStorageConstants.CurrentTheme,
+    );
+    const findTheme = Object.values(Theme).find(
+      (theme) => theme === localStorageTheme,
+    );
 
     this.setTheme(findTheme || this.initialTheme);
   }

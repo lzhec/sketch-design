@@ -16,9 +16,9 @@ export class SettingsState {
     if (environment.production) {
       const isHttps = location.protocol.startsWith('https');
 
-      this._wsPath = `${isHttps ? 'wss' : 'ws'}://${location.host}${environment.apiPath}${
-        environment.wsPath
-      }`;
+      this._wsPath = `${isHttps ? 'wss' : 'ws'}://${location.host}${
+        environment.apiPath
+      }${environment.wsPath}`;
     } else {
       this._wsPath = environment.wsPath;
     }

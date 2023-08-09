@@ -46,6 +46,10 @@ $success-color-10: app-color(success-color, 0.1);
   }
 }
 
+.app-frame-border {
+  border: 2px groove $border-color-65;
+}
+
 .app-border {
   border: 1px solid $border-color-10;
 
