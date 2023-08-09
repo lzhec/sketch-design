@@ -141,15 +141,6 @@ export class CanvasComponent implements AfterViewInit {
       frame.style.width = `${canvas.width}px`;
       frame.style.height = `${canvas.height}px`;
 
-      tl.style.left = '-10px';
-      tl.style.top = '-10px';
-      tr.style.left = `${canvas.width - 10}px`;
-      tr.style.top = '-30px';
-      bl.style.left = '-10px';
-      bl.style.top = `${canvas.height - 50}px`;
-      br.style.left = `${canvas.width - 10}px`;
-      br.style.top = `${canvas.height - 70}px`;
-
       tl.setAttribute('side', ResizeToolPointType.TopLeft);
       tr.setAttribute('side', ResizeToolPointType.TopRight);
       bl.setAttribute('side', ResizeToolPointType.BottomLeft);
@@ -164,8 +155,6 @@ export class CanvasComponent implements AfterViewInit {
           ...['app-sketch-frame-resize-point', 'app-frame-border'],
         );
         point.setAttribute('type', Tool.Resize);
-        point.style.width = '20px';
-        point.style.height = '20px';
 
         frame.appendChild(point);
       });
@@ -308,19 +297,6 @@ export class CanvasComponent implements AfterViewInit {
                 const sizeProportion =
                   layer.originalHeight / layer.originalWidth;
 
-                const tl = frame.querySelector<HTMLDivElement>(
-                  `[side=${ResizeToolPointType.TopLeft}]`,
-                );
-                const tr = frame.querySelector<HTMLDivElement>(
-                  `[side=${ResizeToolPointType.TopRight}]`,
-                );
-                const bl = frame.querySelector<HTMLDivElement>(
-                  `[side=${ResizeToolPointType.BottomLeft}]`,
-                );
-                const br = frame.querySelector<HTMLDivElement>(
-                  `[side=${ResizeToolPointType.BottomRight}]`,
-                );
-
                 switch (side) {
                   case ResizeToolPointType.TopLeft:
                     if (isProportional) {
@@ -365,18 +341,29 @@ export class CanvasComponent implements AfterViewInit {
                       }
                     }
                     startPositionX = canvas.offsetLeft + moveEvent.deltaX;
-                    console.log(moveEvent.deltaX);
-                    console.log(moveEvent.deltaY);
-                    canvas.style.left = `${startPositionX}px`;
-                    frame.style.left = `${startPositionX}px`;
-                    frame.style.width = `${
-                      layer.originalWidth - moveEvent.deltaX
-                    }px`;
-                    frame.style.height = `${
-                      layer.originalHeight + moveEvent.deltaY
-                    }px`;
+
+                    // canvas.style.left = `${startPositionX}px`;
+                    // frame.style.left = `${startPositionX}px`;
+                    // frame.style.width = `${
+                    //   layer.originalWidth - moveEvent.deltaX
+                    // }px`;
+                    // frame.style.height = `${
+                    //   layer.originalHeight + moveEvent.deltaY
+                    // }px`;
                     // canvas.width = canvas.width - moveEvent.deltaX;
                     // canvas.height = canvas.height + moveEvent.deltaY;
+                    console.log(canvas.offsetLeft);
+                    console.log(moveEvent.startOffsetX);
+                    // canvas.style.left = `${
+                    //   canvas.offsetLeft + moveEvent.deltaX + canvas.width
+                    // }px`;
+                    canvas.width = Math.floor(
+                      canvas.width + moveEvent.startOffsetX,
+                    );
+                    frame.style.left = `${
+                      canvas.offsetLeft + moveEvent.deltaX - canvas.width
+                    }px`;
+                    // frame.style.top = `${moveEvent.deltaY}px`;
 
                     break;
                   case ResizeToolPointType.BottomRight:
@@ -395,13 +382,6 @@ export class CanvasComponent implements AfterViewInit {
                     canvas.height = Math.floor(moveEvent.deltaY);
                     frame.style.width = `${Math.floor(moveEvent.deltaX)}px`;
                     frame.style.height = `${Math.floor(moveEvent.deltaY)}px`;
-
-                    tr.style.left = `${canvas.width - 10}px`;
-                    tr.style.top = '-30px';
-                    bl.style.left = '-10px';
-                    bl.style.top = `${canvas.height - 50}px`;
-                    br.style.left = `${canvas.width - 10}px`;
-                    br.style.top = `${canvas.height - 70}px`;
 
                     break;
                 }
