@@ -144,11 +144,11 @@ export class CanvasComponent implements AfterViewInit {
       tl.style.left = '-10px';
       tl.style.top = '-10px';
       tr.style.left = `${canvas.width - 10}px`;
-      tr.style.top = '-10px';
+      tr.style.top = '-30px';
       bl.style.left = '-10px';
-      bl.style.top = `${canvas.height - 10}px`;
+      bl.style.top = `${canvas.height - 50}px`;
       br.style.left = `${canvas.width - 10}px`;
-      br.style.top = `${canvas.height - 10}px`;
+      br.style.top = `${canvas.height - 70}px`;
 
       tl.setAttribute('side', ResizeToolPointType.TopLeft);
       tr.setAttribute('side', ResizeToolPointType.TopRight);
@@ -268,13 +268,28 @@ export class CanvasComponent implements AfterViewInit {
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => {
-            return {
-              originalEvent: moveEvent,
-              deltaX: moveEvent.pageX - event.pageX + coords.left,
-              deltaY: moveEvent.pageY - event.pageY + coords.top,
-              startOffsetX: event.offsetX,
-              startOffsetY: event.offsetY,
-            };
+            switch (toolType) {
+              case Tool.Frame:
+                return {
+                  originalEvent: moveEvent,
+                  deltaX: moveEvent.pageX - event.pageX + coords.left,
+                  deltaY: moveEvent.pageY - event.pageY + coords.top,
+                  startOffsetX: event.offsetX,
+                  startOffsetY: event.offsetY,
+                };
+
+              case Tool.Resize:
+                return {
+                  originalEvent: moveEvent,
+                  deltaX: moveEvent.pageX - coords.left,
+                  deltaY: moveEvent.pageY - coords.top,
+                  startOffsetX: event.offsetX,
+                  startOffsetY: event.offsetY,
+                };
+
+              default:
+                return {};
+            }
           }),
           tap((moveEvent) => {
             switch (toolType) {
@@ -287,11 +302,24 @@ export class CanvasComponent implements AfterViewInit {
                 break;
 
               case Tool.Resize:
+                const layer = this.state.currentLayer;
                 const side = this.currentTool.getAttribute('side');
                 const isProportional = true;
                 const sizeProportion =
-                  this.state.currentLayer.originalHeight /
-                  this.state.currentLayer.originalWidth;
+                  layer.originalHeight / layer.originalWidth;
+
+                const tl = frame.querySelector<HTMLDivElement>(
+                  `[side=${ResizeToolPointType.TopLeft}]`,
+                );
+                const tr = frame.querySelector<HTMLDivElement>(
+                  `[side=${ResizeToolPointType.TopRight}]`,
+                );
+                const bl = frame.querySelector<HTMLDivElement>(
+                  `[side=${ResizeToolPointType.BottomLeft}]`,
+                );
+                const br = frame.querySelector<HTMLDivElement>(
+                  `[side=${ResizeToolPointType.BottomRight}]`,
+                );
 
                 switch (side) {
                   case ResizeToolPointType.TopLeft:
@@ -337,8 +365,19 @@ export class CanvasComponent implements AfterViewInit {
                       }
                     }
                     startPositionX = canvas.offsetLeft + moveEvent.deltaX;
-                    canvas.width = canvas.width - moveEvent.deltaX;
-                    canvas.height = canvas.height + moveEvent.deltaY;
+                    console.log(moveEvent.deltaX);
+                    console.log(moveEvent.deltaY);
+                    canvas.style.left = `${startPositionX}px`;
+                    frame.style.left = `${startPositionX}px`;
+                    frame.style.width = `${
+                      layer.originalWidth - moveEvent.deltaX
+                    }px`;
+                    frame.style.height = `${
+                      layer.originalHeight + moveEvent.deltaY
+                    }px`;
+                    // canvas.width = canvas.width - moveEvent.deltaX;
+                    // canvas.height = canvas.height + moveEvent.deltaY;
+
                     break;
                   case ResizeToolPointType.BottomRight:
                     if (isProportional) {
@@ -352,29 +391,30 @@ export class CanvasComponent implements AfterViewInit {
                       }
                     }
 
-                    const ctx = canvas.getContext('2d');
-
-                    ctx.clearRect(
-                      0,
-                      0,
-                      Math.floor(canvas.width),
-                      Math.floor(canvas.height),
-                    );
                     canvas.width = Math.floor(moveEvent.deltaX);
                     canvas.height = Math.floor(moveEvent.deltaY);
                     frame.style.width = `${Math.floor(moveEvent.deltaX)}px`;
                     frame.style.height = `${Math.floor(moveEvent.deltaY)}px`;
 
-                    ctx.drawImage(
-                      this.state.currentLayer.originalData,
-                      0,
-                      0,
-                      canvas.width,
-                      canvas.height,
-                    );
+                    tr.style.left = `${canvas.width - 10}px`;
+                    tr.style.top = '-30px';
+                    bl.style.left = '-10px';
+                    bl.style.top = `${canvas.height - 50}px`;
+                    br.style.left = `${canvas.width - 10}px`;
+                    br.style.top = `${canvas.height - 70}px`;
 
                     break;
                 }
+
+                const ctx = canvas.getContext('2d');
+
+                ctx.drawImage(
+                  layer.originalData,
+                  0,
+                  0,
+                  canvas.width,
+                  canvas.height,
+                );
             }
           }),
           takeUntil(mouseUp$),
@@ -400,9 +440,9 @@ export class CanvasComponent implements AfterViewInit {
 
     combineLatest([
       dragStart$.pipe(
-        // tap((event) => {
-        //   console.log('START DRAG', event);
-        // }),
+        tap((event) => {
+          console.log('START DRAG', event);
+        }),
         takeUntil(mouseUp$),
       ),
       dragMove$.pipe(
@@ -414,7 +454,7 @@ export class CanvasComponent implements AfterViewInit {
       dragEnd$.pipe(
         first(),
         tap((event: MoveEvent) => {
-          // console.log('DRAG END', event);
+          console.log('DRAG END', event);
 
           this.mousedown$.next(null);
           this.currentCanvas$.next(null);

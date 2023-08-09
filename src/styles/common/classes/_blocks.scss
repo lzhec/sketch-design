@@ -113,7 +113,8 @@ $bg-block-1-color: app-color(bg-block-1-color);
   cursor: move;
 }
 .app-sketch-frame-resize-point {
-  position: absolute;
+  // position: absolute;
+  position: relative;
   z-index: 999;
 
   &[side="top-left"] {
