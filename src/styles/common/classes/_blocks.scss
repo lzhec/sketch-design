@@ -113,23 +113,32 @@ $bg-block-1-color: app-color(bg-block-1-color);
   cursor: move;
 }
 .app-sketch-frame-resize-point {
-  // position: absolute;
-  position: relative;
+  position: absolute;
   z-index: 999;
+  width: 20px;
+  height: 20px;
 
   &[side="top-left"] {
     cursor: nw-resize;
+    top: -10px;
+    left: -10px;
   }
 
   &[side="top-right"] {
     cursor: ne-resize;
+    right: -10px;
+    top: -10px;
   }
 
   &[side="bottom-left"] {
     cursor: sw-resize;
+    left: -10px;
+    bottom: -10px;
   }
 
   &[side="bottom-right"] {
     cursor: se-resize;
+    right: -10px;
+    bottom: -10px;
   }
 }
