@@ -42,6 +42,8 @@ export class CanvasComponent implements AfterViewInit {
   private currentCanvas$ = new BehaviorSubject<HTMLCanvasElement>(null);
   private currentFrame$ = new BehaviorSubject<HTMLDivElement>(null);
 
+  private currentTool: HTMLDivElement;
+
   public Tool = Tool;
   public ResizeToolPointType = ResizeToolPointType;
 
@@ -83,11 +85,14 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   private selectLayerByFrame(element: HTMLDivElement, toolType: Tool): void {
-    this.currentCanvas$.next(
-      this.canvas.nativeElement.querySelector(
-        `[id="${this.state.currentLayer.id}"]`,
-      ),
+    const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
+      `[id="${this.state.currentLayer.id}"]`,
     );
+    this.currentCanvas$.next(canvas);
+
+    if (toolType !== Tool.Frame) {
+      this.currentTool = element;
+    }
 
     switch (toolType) {
       case Tool.Frame:
@@ -95,11 +100,10 @@ export class CanvasComponent implements AfterViewInit {
         break;
 
       case Tool.Resize:
-        // this.listenToResizeCanvas();
         break;
     }
 
-    this.listenToMoveCanvas(toolType);
+    this.listenToMoveCanvas(toolType, canvas.offsetLeft, canvas.offsetTop);
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
@@ -176,7 +180,7 @@ export class CanvasComponent implements AfterViewInit {
     this.currentCanvas$.next(canvas);
     this.currentFrame$.next(frame);
 
-    this.listenToMoveCanvas(Tool.Frame);
+    this.listenToMoveCanvas(Tool.Frame, canvas.offsetLeft, canvas.offsetTop);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -217,6 +221,7 @@ export class CanvasComponent implements AfterViewInit {
           type: 'image',
           level: this.state.maxLayerIndex,
           data: ctx,
+          originalData: originalImg,
           width: originalImg.naturalWidth || originalImg.width,
           height: originalImg.naturalHeight || originalImg.height,
           originalWidth: originalImg.naturalWidth || originalImg.width,
@@ -245,9 +250,11 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToResizeCanvas(): void {}
-
-  private listenToMoveCanvas(toolType: Tool): void {
+  private listenToMoveCanvas(
+    toolType: Tool,
+    startPositionX: number,
+    startPositionY: number,
+  ): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
     const dragStart$ = zip([
@@ -276,6 +283,98 @@ export class CanvasComponent implements AfterViewInit {
                 canvas.style.top = `${moveEvent.deltaY}px`;
                 frame.style.left = `${moveEvent.deltaX}px`;
                 frame.style.top = `${moveEvent.deltaY}px`;
+
+                break;
+
+              case Tool.Resize:
+                const side = this.currentTool.getAttribute('side');
+                const isProportional = true;
+                const sizeProportion =
+                  this.state.currentLayer.originalHeight /
+                  this.state.currentLayer.originalWidth;
+
+                switch (side) {
+                  case ResizeToolPointType.TopLeft:
+                    if (isProportional) {
+                      if (
+                        (canvas.width - moveEvent.deltaX) * sizeProportion <
+                        canvas.height - moveEvent.deltaY
+                      ) {
+                        moveEvent.deltaY = moveEvent.deltaX * sizeProportion;
+                      } else {
+                        moveEvent.deltaX = moveEvent.deltaY / sizeProportion;
+                      }
+                    }
+                    startPositionX = canvas.offsetLeft + moveEvent.deltaX;
+                    startPositionY = canvas.offsetTop + moveEvent.deltaY;
+                    canvas.width = canvas.width - moveEvent.deltaX;
+                    canvas.height = canvas.height - moveEvent.deltaY;
+                    break;
+                  case ResizeToolPointType.TopRight:
+                    if (isProportional) {
+                      if (
+                        (canvas.width + moveEvent.deltaX) * sizeProportion <
+                        canvas.height - moveEvent.deltaY
+                      ) {
+                        moveEvent.deltaY = -moveEvent.deltaX * sizeProportion;
+                      } else {
+                        moveEvent.deltaX = -moveEvent.deltaY / sizeProportion;
+                      }
+                    }
+                    startPositionY = canvas.offsetTop + moveEvent.deltaY;
+                    canvas.width = canvas.width + moveEvent.deltaX;
+                    canvas.height = canvas.height - moveEvent.deltaY;
+                    break;
+                  case ResizeToolPointType.BottomLeft:
+                    if (isProportional) {
+                      if (
+                        (canvas.width + moveEvent.deltaX) * sizeProportion <
+                        canvas.height - moveEvent.deltaY
+                      ) {
+                        moveEvent.deltaY = -moveEvent.deltaX * sizeProportion;
+                      } else {
+                        moveEvent.deltaX = -moveEvent.deltaY / sizeProportion;
+                      }
+                    }
+                    startPositionX = canvas.offsetLeft + moveEvent.deltaX;
+                    canvas.width = canvas.width - moveEvent.deltaX;
+                    canvas.height = canvas.height + moveEvent.deltaY;
+                    break;
+                  case ResizeToolPointType.BottomRight:
+                    if (isProportional) {
+                      if (
+                        (canvas.width + moveEvent.deltaX) * sizeProportion <
+                        canvas.height + moveEvent.deltaY
+                      ) {
+                        moveEvent.deltaY = moveEvent.deltaX * sizeProportion;
+                      } else {
+                        moveEvent.deltaX = moveEvent.deltaY / sizeProportion;
+                      }
+                    }
+
+                    const ctx = canvas.getContext('2d');
+
+                    ctx.clearRect(
+                      0,
+                      0,
+                      Math.floor(canvas.width),
+                      Math.floor(canvas.height),
+                    );
+                    canvas.width = Math.floor(moveEvent.deltaX);
+                    canvas.height = Math.floor(moveEvent.deltaY);
+                    frame.style.width = `${Math.floor(moveEvent.deltaX)}px`;
+                    frame.style.height = `${Math.floor(moveEvent.deltaY)}px`;
+
+                    ctx.drawImage(
+                      this.state.currentLayer.originalData,
+                      0,
+                      0,
+                      canvas.width,
+                      canvas.height,
+                    );
+
+                    break;
+                }
             }
           }),
           takeUntil(mouseUp$),

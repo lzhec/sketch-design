@@ -6,6 +6,7 @@ export interface Layer {
   type: string;
   level: number;
   data: CanvasRenderingContext2D;
+  originalData: HTMLImageElement;
   width: number;
   height: number;
   originalWidth: number;
