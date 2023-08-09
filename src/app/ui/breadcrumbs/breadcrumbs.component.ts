@@ -24,7 +24,10 @@ export class BreadcrumbsComponent implements OnInit, OnDestroy {
   public breadcrumbs: Breadcrumb[] = [];
   public ownBreadcrumbs: Breadcrumb[] = [];
 
-  constructor(private router: Router, private activeRoute: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private activeRoute: ActivatedRoute,
+  ) {
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationStart) {
         this.breadcrumbs = [];
@@ -77,7 +80,7 @@ export class BreadcrumbsComponent implements OnInit, OnDestroy {
 
   private agregateUrlSegments(
     snapshot: ActivatedRouteSnapshot,
-    array: UrlSegment[]
+    array: UrlSegment[],
   ): UrlSegment[] {
     if (snapshot.url) {
       array = snapshot.url.concat(array);

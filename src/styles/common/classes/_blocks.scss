@@ -106,9 +106,29 @@ $bg-block-1-color: app-color(bg-block-1-color);
   height: 74vh;
 }
 
-.app-sketch-frame,
-.app-sketch-frame-scale-point {
+.app-sketch-frame {
   // position: fixed;
   position: absolute;
   z-index: 999;
+  cursor: move;
+}
+.app-sketch-frame-resize-point {
+  position: absolute;
+  z-index: 999;
+
+  &[side="top-left"] {
+    cursor: nw-resize;
+  }
+
+  &[side="top-right"] {
+    cursor: ne-resize;
+  }
+
+  &[side="bottom-left"] {
+    cursor: sw-resize;
+  }
+
+  &[side="bottom-right"] {
+    cursor: se-resize;
+  }
 }

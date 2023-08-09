@@ -3,7 +3,7 @@ export type ToolbarEventType =
   | 'redo'
   | 'moving'
   | 'rotation'
-  | 'scaling'
+  | 'resize'
   | 'deformation'
   | 'mirroring';
 
@@ -14,11 +14,11 @@ export interface ToolbarEvent {
 
 export enum Tool {
   Frame = 'frame',
-  Rotation = 'rotation',
-  Scaling = 'scaling',
+  Rotation = 'rotation-point',
+  Resize = 'resize-point',
 }
 
-export enum ScalingToolPointType {
+export enum ResizeToolPointType {
   TopLeft = 'top-left',
   TopCenter = 'top-center',
   TopRight = 'top-right',

@@ -25,7 +25,7 @@ import {
 import { Layer } from '../sketch.types';
 import { SketchState } from '../sketch.state';
 import { MoveEvent } from './canvas.types';
-import { ScalingToolPointType, Tool } from '../toolbar/toolbar.types';
+import { ResizeToolPointType, Tool } from '../toolbar/toolbar.types';
 
 @Component({
   selector: 'app-canvas',
@@ -43,7 +43,7 @@ export class CanvasComponent implements AfterViewInit {
   private currentFrame$ = new BehaviorSubject<HTMLDivElement>(null);
 
   public Tool = Tool;
-  public ScalingToolPointType = ScalingToolPointType;
+  public ResizeToolPointType = ResizeToolPointType;
 
   constructor(private state: SketchState) {}
 
@@ -53,7 +53,6 @@ export class CanvasComponent implements AfterViewInit {
       .subscribe((event: MouseEvent) => {
         // console.log('MOUSE DOWN', event);
         const element = event.target as HTMLCanvasElement | HTMLDivElement;
-        console.log(element);
 
         if (!element.id) {
           return;
@@ -62,7 +61,6 @@ export class CanvasComponent implements AfterViewInit {
         this.mousedown$.next(event);
 
         const type = element.getAttribute('type');
-        console.log(type);
 
         if (type) {
           this.selectLayerByFrame(element as HTMLDivElement, type as Tool);
@@ -84,7 +82,7 @@ export class CanvasComponent implements AfterViewInit {
     this.selectLayerByCanvas(canvas);
   }
 
-  private selectLayerByFrame(frame: HTMLDivElement, toolType: Tool): void {
+  private selectLayerByFrame(element: HTMLDivElement, toolType: Tool): void {
     this.currentCanvas$.next(
       this.canvas.nativeElement.querySelector(
         `[id="${this.state.currentLayer.id}"]`,
@@ -93,13 +91,15 @@ export class CanvasComponent implements AfterViewInit {
 
     switch (toolType) {
       case Tool.Frame:
-        this.listenToMoveCanvas();
+        // this.listenToMoveCanvas();
         break;
 
-      case Tool.Scaling:
-        this.listenToScalingCanvas();
+      case Tool.Resize:
+        // this.listenToResizeCanvas();
         break;
     }
+
+    this.listenToMoveCanvas(toolType);
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
@@ -108,7 +108,7 @@ export class CanvasComponent implements AfterViewInit {
     if (!this.state.currentLayer || this.state.currentLayer.id !== canvas.id) {
       if (this.state.currentLayer) {
         const previousFrame = this.canvas.nativeElement.querySelector(
-          `[id="sketch-frame-${this.state.currentLayer.id}"]`,
+          `[id="${Tool.Frame}-${this.state.currentLayer.id}"]`,
         );
 
         this.canvas.nativeElement.removeChild(previousFrame);
@@ -129,7 +129,7 @@ export class CanvasComponent implements AfterViewInit {
 
       frame.setAttribute('type', Tool.Frame);
       frame.classList.add(...['app-sketch-frame', 'app-frame-border']);
-      frame.id = `sketch-frame-${canvas.id}`;
+      frame.id = `${Tool.Frame}-${canvas.id}`;
       // frame.style.left = `${coords.left}px`;
       // frame.style.top = `${coords.top}px`;
       frame.style.left = `${canvas.offsetLeft}px`;
@@ -146,13 +146,20 @@ export class CanvasComponent implements AfterViewInit {
       br.style.left = `${canvas.width - 10}px`;
       br.style.top = `${canvas.height - 10}px`;
 
-      const scalePoints = [tl, tr, bl, br];
+      tl.setAttribute('side', ResizeToolPointType.TopLeft);
+      tr.setAttribute('side', ResizeToolPointType.TopRight);
+      bl.setAttribute('side', ResizeToolPointType.BottomLeft);
+      br.setAttribute('side', ResizeToolPointType.BottomRight);
 
-      scalePoints.forEach((point) => {
+      const resizePoints = [tl, tr, bl, br];
+
+      resizePoints.forEach((point) => {
+        const side = point.getAttribute('side');
+        point.id = `${side}-${Tool.Resize}-${canvas.id}`;
         point.classList.add(
-          ...['app-sketch-frame-scale-point', 'app-frame-border'],
+          ...['app-sketch-frame-resize-point', 'app-frame-border'],
         );
-        point.setAttribute('type', Tool.Scaling);
+        point.setAttribute('type', Tool.Resize);
         point.style.width = '20px';
         point.style.height = '20px';
 
@@ -162,14 +169,14 @@ export class CanvasComponent implements AfterViewInit {
       this.canvas.nativeElement.appendChild(frame);
     } else {
       frame = this.canvas.nativeElement.querySelector(
-        `[id="sketch-frame-${canvas.id}"]`,
+        `[id="${Tool.Frame}-${canvas.id}"]`,
       );
     }
 
     this.currentCanvas$.next(canvas);
     this.currentFrame$.next(frame);
 
-    this.listenToMoveCanvas();
+    this.listenToMoveCanvas(Tool.Frame);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -206,7 +213,7 @@ export class CanvasComponent implements AfterViewInit {
 
         const newLayer: Layer = {
           id: layer.id,
-          name: `layer${this.state.maxLayerIndex}`,
+          name: `layer ${this.state.maxLayerIndex}`,
           type: 'image',
           level: this.state.maxLayerIndex,
           data: ctx,
@@ -238,9 +245,9 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToScalingCanvas(): void {}
+  private listenToResizeCanvas(): void {}
 
-  private listenToMoveCanvas(): void {
+  private listenToMoveCanvas(toolType: Tool): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
     const dragStart$ = zip([
@@ -263,10 +270,13 @@ export class CanvasComponent implements AfterViewInit {
             };
           }),
           tap((moveEvent) => {
-            canvas.style.left = `${moveEvent.deltaX}px`;
-            canvas.style.top = `${moveEvent.deltaY}px`;
-            frame.style.left = `${moveEvent.deltaX}px`;
-            frame.style.top = `${moveEvent.deltaY}px`;
+            switch (toolType) {
+              case Tool.Frame:
+                canvas.style.left = `${moveEvent.deltaX}px`;
+                canvas.style.top = `${moveEvent.deltaY}px`;
+                frame.style.left = `${moveEvent.deltaX}px`;
+                frame.style.top = `${moveEvent.deltaY}px`;
+            }
           }),
           takeUntil(mouseUp$),
         );
