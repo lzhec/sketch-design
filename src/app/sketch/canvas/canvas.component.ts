@@ -103,7 +103,7 @@ export class CanvasComponent implements AfterViewInit {
         break;
     }
 
-    this.listenToMoveCanvas(toolType, canvas.offsetLeft, canvas.offsetTop);
+    this.listenToMoveCanvas(toolType);
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
@@ -175,7 +175,7 @@ export class CanvasComponent implements AfterViewInit {
     this.currentCanvas$.next(canvas);
     this.currentFrame$.next(frame);
 
-    this.listenToMoveCanvas(Tool.Frame, canvas.offsetLeft, canvas.offsetTop);
+    this.listenToMoveCanvas(Tool.Frame);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -245,11 +245,7 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToMoveCanvas(
-    toolType: Tool,
-    startPositionX: number,
-    startPositionY: number,
-  ): void {
+  private listenToMoveCanvas(toolType: Tool): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
     const dragStart$ = zip([
@@ -260,10 +256,8 @@ export class CanvasComponent implements AfterViewInit {
     const dragMove$ = dragStart$.pipe(
       switchMap(([event, canvas, frame]) => {
         const coords = this.getCanvasCoords(canvas);
-        const w =
-          /*window.innerWidth / 2*/ canvas.clientLeft + canvas.width / 2;
-        const h =
-          /*window.innerHeight / 2*/ canvas.clientTop + canvas.height / 2;
+        const w = canvas.offsetLeft + canvas.width / 2;
+        const h = canvas.offsetTop + canvas.height / 2;
         let ctx: CanvasRenderingContext2D;
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
@@ -283,16 +277,11 @@ export class CanvasComponent implements AfterViewInit {
                 deltaX = w - moveEvent.originalEvent.pageX;
                 deltaY = h - moveEvent.originalEvent.pageY;
                 const rad = Math.atan2(deltaY, deltaX);
-                let deg = Math.round((rad * 180) / Math.PI);
-
-                // if (deg < 0) {
-                //   deg = (deg + 360) % 360;
-                // }
-
+                let deg = Math.round((rad * 180 - 270) / Math.PI);
+                frame.style.rotate = `${deg}deg`;
                 ctx = canvas.getContext('2d');
 
                 ctx.rotate(deg);
-                frame.style.rotate = `${deg}deg`;
 
                 break;
 
@@ -314,6 +303,8 @@ export class CanvasComponent implements AfterViewInit {
                 break;
 
               case Tool.Resize:
+                const stopSignal = canvas.width <= 10 || canvas.height <= 10;
+
                 const layer = this.state.currentLayer;
                 const side = this.currentTool.getAttribute('side');
                 const isProportional = true;
@@ -328,6 +319,18 @@ export class CanvasComponent implements AfterViewInit {
                     deltaY =
                       moveEvent.originalEvent.pageY -
                       moveEvent.startEvent.pageY;
+
+                    console.log(
+                      ResizeToolPointType.TopLeft,
+                      deltaX,
+                      deltaY,
+                      stopSignal,
+                    );
+
+                    if (deltaX >= 0 && stopSignal) {
+                      console.log('STOP');
+                      return;
+                    }
 
                     if (isProportional) {
                       if (
@@ -366,6 +369,10 @@ export class CanvasComponent implements AfterViewInit {
                       moveEvent.originalEvent.pageY -
                       moveEvent.startEvent.pageY;
 
+                    if (deltaY > 0 && stopSignal) {
+                      return;
+                    }
+
                     if (isProportional) {
                       if (
                         (canvas.width + deltaX) * sizeProportion <
@@ -397,6 +404,10 @@ export class CanvasComponent implements AfterViewInit {
                     deltaY =
                       moveEvent.originalEvent.pageY -
                       moveEvent.startEvent.pageY;
+
+                    if (deltaX >= 0 && stopSignal) {
+                      return;
+                    }
 
                     if (isProportional) {
                       if (
@@ -471,7 +482,6 @@ export class CanvasComponent implements AfterViewInit {
       switchMap(([event, frame]) =>
         mouseMove$.pipe(
           startWith(event),
-          tap((e) => console.log(e)),
           map((moveEvent: MouseEvent) => ({
             originalEvent: moveEvent,
             deltaX: moveEvent.pageX - event.pageX,
