@@ -155,9 +155,15 @@ export class CanvasComponent implements AfterViewInit {
           ...['app-sketch-frame-resize-point', 'app-frame-border'],
         );
         point.setAttribute('type', Tool.Resize);
-
         frame.appendChild(point);
       });
+
+      rot.id = `${Tool.Rotation}-${canvas.id}`;
+      rot.classList.add(
+        ...['app-sketch-frame-rotation-point', 'app-frame-border'],
+      );
+      rot.setAttribute('type', Tool.Rotation);
+      frame.appendChild(rot);
 
       this.canvas.nativeElement.appendChild(frame);
     } else {
@@ -254,39 +260,56 @@ export class CanvasComponent implements AfterViewInit {
     const dragMove$ = dragStart$.pipe(
       switchMap(([event, canvas, frame]) => {
         const coords = this.getCanvasCoords(canvas);
+        const w =
+          /*window.innerWidth / 2*/ canvas.clientLeft + canvas.width / 2;
+        const h =
+          /*window.innerHeight / 2*/ canvas.clientTop + canvas.height / 2;
+        let ctx: CanvasRenderingContext2D;
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
 
         return mouseMove$.pipe(
-          map((moveEvent: MouseEvent) => {
-            switch (toolType) {
-              case Tool.Frame:
-                return {
-                  originalEvent: moveEvent,
-                  deltaX: moveEvent.pageX - event.pageX + coords.left,
-                  deltaY: moveEvent.pageY - event.pageY + coords.top,
-                  startOffsetX: event.offsetX,
-                  startOffsetY: event.offsetY,
-                };
-
-              case Tool.Resize:
-                return {
-                  originalEvent: moveEvent,
-                  deltaX: moveEvent.pageX - coords.left,
-                  deltaY: moveEvent.pageY - coords.top,
-                  startOffsetX: event.offsetX,
-                  startOffsetY: event.offsetY,
-                };
-
-              default:
-                return {};
-            }
-          }),
+          map((moveEvent: MouseEvent) => ({
+            startEvent: event,
+            originalEvent: moveEvent,
+            coords: coords,
+          })),
           tap((moveEvent) => {
+            let deltaX: number;
+            let deltaY: number;
+
             switch (toolType) {
+              case Tool.Rotation:
+                deltaX = w - moveEvent.originalEvent.pageX;
+                deltaY = h - moveEvent.originalEvent.pageY;
+                const rad = Math.atan2(deltaY, deltaX);
+                let deg = Math.round((rad * 180) / Math.PI);
+
+                // if (deg < 0) {
+                //   deg = (deg + 360) % 360;
+                // }
+
+                ctx = canvas.getContext('2d');
+
+                ctx.rotate(deg);
+                frame.style.rotate = `${deg}deg`;
+
+                break;
+
               case Tool.Frame:
-                canvas.style.left = `${moveEvent.deltaX}px`;
-                canvas.style.top = `${moveEvent.deltaY}px`;
-                frame.style.left = `${moveEvent.deltaX}px`;
-                frame.style.top = `${moveEvent.deltaY}px`;
+                deltaX =
+                  moveEvent.originalEvent.pageX -
+                  moveEvent.startEvent.pageX +
+                  moveEvent.coords.left;
+                deltaY =
+                  moveEvent.originalEvent.pageY -
+                  moveEvent.startEvent.pageY +
+                  moveEvent.coords.top;
+
+                canvas.style.left = `${deltaX}px`;
+                canvas.style.top = `${deltaY}px`;
+                frame.style.left = `${deltaX}px`;
+                frame.style.top = `${deltaY}px`;
 
                 break;
 
@@ -299,94 +322,137 @@ export class CanvasComponent implements AfterViewInit {
 
                 switch (side) {
                   case ResizeToolPointType.TopLeft:
+                    deltaX =
+                      moveEvent.originalEvent.pageX -
+                      moveEvent.startEvent.pageX;
+                    deltaY =
+                      moveEvent.originalEvent.pageY -
+                      moveEvent.startEvent.pageY;
+
                     if (isProportional) {
                       if (
-                        (canvas.width - moveEvent.deltaX) * sizeProportion <
-                        canvas.height - moveEvent.deltaY
+                        (canvas.width - deltaX) * sizeProportion <
+                        canvas.height - deltaY
                       ) {
-                        moveEvent.deltaY = moveEvent.deltaX * sizeProportion;
+                        deltaY = deltaX * sizeProportion;
                       } else {
-                        moveEvent.deltaX = moveEvent.deltaY / sizeProportion;
+                        deltaX = deltaY / sizeProportion;
                       }
                     }
-                    startPositionX = canvas.offsetLeft + moveEvent.deltaX;
-                    startPositionY = canvas.offsetTop + moveEvent.deltaY;
-                    canvas.width = canvas.width - moveEvent.deltaX;
-                    canvas.height = canvas.height - moveEvent.deltaY;
+
+                    frame.style.left = `${Math.floor(
+                      event.clientX + deltaX,
+                    )}px`;
+                    frame.style.top = `${Math.floor(event.clientY + deltaY)}px`;
+                    frame.style.width = `${Math.floor(canvasWidth - deltaX)}px`;
+                    frame.style.height = `${Math.floor(
+                      canvasHeight - deltaY,
+                    )}px`;
+                    canvas.style.left = `${Math.floor(
+                      event.clientX + deltaX,
+                    )}px`;
+                    canvas.style.top = `${Math.floor(
+                      event.clientY + deltaY,
+                    )}px`;
+                    canvas.width = Math.floor(canvasWidth - deltaX);
+                    canvas.height = Math.floor(canvasHeight - deltaY);
+
                     break;
+
                   case ResizeToolPointType.TopRight:
-                    if (isProportional) {
-                      if (
-                        (canvas.width + moveEvent.deltaX) * sizeProportion <
-                        canvas.height - moveEvent.deltaY
-                      ) {
-                        moveEvent.deltaY = -moveEvent.deltaX * sizeProportion;
-                      } else {
-                        moveEvent.deltaX = -moveEvent.deltaY / sizeProportion;
-                      }
-                    }
-                    startPositionY = canvas.offsetTop + moveEvent.deltaY;
-                    canvas.width = canvas.width + moveEvent.deltaX;
-                    canvas.height = canvas.height - moveEvent.deltaY;
-                    break;
-                  case ResizeToolPointType.BottomLeft:
-                    if (isProportional) {
-                      if (
-                        (canvas.width + moveEvent.deltaX) * sizeProportion <
-                        canvas.height - moveEvent.deltaY
-                      ) {
-                        moveEvent.deltaY = -moveEvent.deltaX * sizeProportion;
-                      } else {
-                        moveEvent.deltaX = -moveEvent.deltaY / sizeProportion;
-                      }
-                    }
-                    startPositionX = canvas.offsetLeft + moveEvent.deltaX;
+                    deltaX =
+                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
+                    deltaY =
+                      moveEvent.originalEvent.pageY -
+                      moveEvent.startEvent.pageY;
 
-                    // canvas.style.left = `${startPositionX}px`;
-                    // frame.style.left = `${startPositionX}px`;
-                    // frame.style.width = `${
-                    //   layer.originalWidth - moveEvent.deltaX
-                    // }px`;
-                    // frame.style.height = `${
-                    //   layer.originalHeight + moveEvent.deltaY
-                    // }px`;
-                    // canvas.width = canvas.width - moveEvent.deltaX;
-                    // canvas.height = canvas.height + moveEvent.deltaY;
-                    console.log(canvas.offsetLeft);
-                    console.log(moveEvent.startOffsetX);
-                    // canvas.style.left = `${
-                    //   canvas.offsetLeft + moveEvent.deltaX + canvas.width
-                    // }px`;
-                    canvas.width = Math.floor(
-                      canvas.width + moveEvent.startOffsetX,
+                    if (isProportional) {
+                      if (
+                        (canvas.width + deltaX) * sizeProportion <
+                        canvas.height - deltaY
+                      ) {
+                        deltaY = -deltaX * sizeProportion;
+                      } else {
+                        deltaX = -deltaY / sizeProportion;
+                      }
+                    }
+
+                    frame.style.top = `${event.clientY + deltaY}px`;
+                    frame.style.width = `${Math.floor(canvasWidth + deltaX)}px`;
+                    frame.style.height = `${Math.floor(
+                      canvasHeight - deltaY,
+                    )}px`;
+                    canvas.style.top = `${event.clientY + deltaY}px`;
+                    canvas.width = Math.floor(canvasWidth + deltaX);
+                    canvas.height = Math.floor(
+                      Math.floor(canvasHeight - deltaY),
                     );
-                    frame.style.left = `${
-                      canvas.offsetLeft + moveEvent.deltaX - canvas.width
-                    }px`;
-                    // frame.style.top = `${moveEvent.deltaY}px`;
 
                     break;
-                  case ResizeToolPointType.BottomRight:
+
+                  case ResizeToolPointType.BottomLeft:
+                    deltaX =
+                      moveEvent.originalEvent.pageX -
+                      moveEvent.startEvent.pageX;
+                    deltaY =
+                      moveEvent.originalEvent.pageY -
+                      moveEvent.startEvent.pageY;
+
                     if (isProportional) {
                       if (
-                        (canvas.width + moveEvent.deltaX) * sizeProportion <
-                        canvas.height + moveEvent.deltaY
+                        (canvas.width + deltaX) * sizeProportion <
+                        canvas.height - deltaY
                       ) {
-                        moveEvent.deltaY = moveEvent.deltaX * sizeProportion;
+                        deltaY = -deltaX * sizeProportion;
                       } else {
-                        moveEvent.deltaX = moveEvent.deltaY / sizeProportion;
+                        deltaX = -deltaY / sizeProportion;
                       }
                     }
 
-                    canvas.width = Math.floor(moveEvent.deltaX);
-                    canvas.height = Math.floor(moveEvent.deltaY);
-                    frame.style.width = `${Math.floor(moveEvent.deltaX)}px`;
-                    frame.style.height = `${Math.floor(moveEvent.deltaY)}px`;
+                    frame.style.left = `${Math.floor(
+                      event.clientX + deltaX,
+                    )}px`;
+                    frame.style.width = `${Math.floor(canvasWidth - deltaX)}px`;
+                    frame.style.height = `${Math.floor(
+                      canvasHeight + deltaY,
+                    )}px`;
+                    canvas.style.left = `${Math.floor(
+                      event.clientX + deltaX,
+                    )}px`;
+                    canvas.width = Math.floor(canvasWidth - deltaX);
+                    canvas.height = Math.floor(canvasHeight + deltaY);
+
+                    break;
+
+                  case ResizeToolPointType.BottomRight:
+                    deltaX =
+                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
+                    deltaY =
+                      moveEvent.originalEvent.pageY - moveEvent.coords.top;
+
+                    if (isProportional) {
+                      if (
+                        (canvas.width +
+                          moveEvent.originalEvent.pageX +
+                          deltaX) *
+                          sizeProportion <
+                        canvas.height + deltaY
+                      ) {
+                        deltaY = deltaX * sizeProportion;
+                      } else {
+                        deltaX = deltaY / sizeProportion;
+                      }
+                    }
+
+                    frame.style.width = `${Math.floor(deltaX)}px`;
+                    frame.style.height = `${Math.floor(deltaY)}px`;
+                    canvas.width = Math.floor(deltaX);
+                    canvas.height = Math.floor(deltaY);
 
                     break;
                 }
 
-                const ctx = canvas.getContext('2d');
+                ctx = canvas.getContext('2d');
 
                 ctx.drawImage(
                   layer.originalData,
@@ -405,6 +471,7 @@ export class CanvasComponent implements AfterViewInit {
       switchMap(([event, frame]) =>
         mouseMove$.pipe(
           startWith(event),
+          tap((e) => console.log(e)),
           map((moveEvent: MouseEvent) => ({
             originalEvent: moveEvent,
             deltaX: moveEvent.pageX - event.pageX,
@@ -420,9 +487,9 @@ export class CanvasComponent implements AfterViewInit {
 
     combineLatest([
       dragStart$.pipe(
-        tap((event) => {
-          console.log('START DRAG', event);
-        }),
+        // tap((event) => {
+        //   console.log('START DRAG', event);
+        // }),
         takeUntil(mouseUp$),
       ),
       dragMove$.pipe(
@@ -433,8 +500,8 @@ export class CanvasComponent implements AfterViewInit {
       ),
       dragEnd$.pipe(
         first(),
-        tap((event: MoveEvent) => {
-          console.log('DRAG END', event);
+        tap((event) => {
+          // console.log('DRAG END', event);
 
           this.mousedown$.next(null);
           this.currentCanvas$.next(null);
