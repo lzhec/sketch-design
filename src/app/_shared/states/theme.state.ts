@@ -44,7 +44,7 @@ export class ThemeState extends BaseObject {
 
     this.r = this.rendererFactory.createRenderer(null, null);
 
-    this.initialTheme = Theme.dark;
+    this.initialTheme = Theme.light;
     this.colors$ = new BehaviorSubject<ColorsMap>(
       this.themeColors[this.initialTheme],
     );

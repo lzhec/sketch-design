@@ -261,6 +261,8 @@ export class CanvasComponent implements AfterViewInit {
         let ctx: CanvasRenderingContext2D;
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
+        // const originalImg = new Image();
+        // originalImg.src = canvas.toDataURL();
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => ({
@@ -278,10 +280,37 @@ export class CanvasComponent implements AfterViewInit {
                 deltaY = h - moveEvent.originalEvent.pageY;
                 const rad = Math.atan2(deltaY, deltaX);
                 let deg = Math.round((rad * 180 - 270) / Math.PI);
-                frame.style.rotate = `${deg}deg`;
-                ctx = canvas.getContext('2d');
 
-                ctx.rotate(deg);
+                const deltaX2 =
+                  -moveEvent.startEvent.offsetX +
+                  moveEvent.originalEvent.offsetX;
+
+                const deltaY2 =
+                  -moveEvent.startEvent.offsetY +
+                  moveEvent.originalEvent.offsetY;
+
+                const rad2 = Math.atan2(deltaY2, deltaX2);
+
+                if (deg < 0) {
+                  deg = (deg + 360) % 360;
+                }
+
+                frame.style.rotate = `${deg}deg`;
+                canvas.style.transform = `rotate(${deg}deg)`;
+
+                // ctx = canvas.getContext('2d');
+
+                // ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // ctx.save();
+                // ctx.translate(0, 0);
+                // ctx.translate(canvas.width / 2, canvas.height / 2);
+                // ctx.rotate(rad);
+                // ctx.drawImage(
+                //   originalImg,
+                //   -(originalImg.width / 2),
+                //   -(originalImg.height / 2),
+                // );
+                // ctx.restore();
 
                 break;
 
