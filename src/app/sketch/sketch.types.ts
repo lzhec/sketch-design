@@ -5,10 +5,10 @@ export interface Layer {
   name: string;
   type: string;
   level: number;
-  data: CanvasRenderingContext2D;
-  originalData: HTMLImageElement;
   width: number;
   height: number;
+  originalData: HTMLImageElement;
   originalWidth: number;
   originalHeight: number;
+  isHidden: boolean;
 }

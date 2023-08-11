@@ -51,7 +51,7 @@ export class ButtonComponent {
   constructor(
     @Attribute('size')
     public size: 'large' | 'middle-large' | 'middle' | 'small',
-    public element: ElementRef<HTMLElement>
+    public element: ElementRef<HTMLElement>,
   ) {
     this.size = this.size || 'middle';
   }

@@ -30,6 +30,12 @@ export class SketchComponent {
       case 'layer-select':
         this.canvasComponent.selectLayerHandler(event.entity as Layer);
         break;
+
+      case 'layer-reorder':
+        this.canvasComponent.reordeerLayersHandler(
+          event.entity[0],
+          event.entity[1],
+        );
     }
   }
 }

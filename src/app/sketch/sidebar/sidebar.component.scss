@@ -1,3 +1,15 @@
 :host {
-  width: 200px;
+  min-width: 400px;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.app-sidebar {
+  &__layers-block {
+    min-height: 200px;
+  }
+}
+
+.app-button {
+  margin-left: 5px;
 }

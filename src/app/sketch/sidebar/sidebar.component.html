@@ -1,4 +1,49 @@
-<div *ngFor="let layer of state.layers$ | async"
-    (click)="selectLayer(layer)">
-  {{ layer.name }}
-</div>
+<app-grid *ngLet="state.layers$ | async as layers"
+          gap="10px"
+          gapType="vertical"
+          style="width: 100%;"
+          class="app-sidebar">
+  <app-grid-tile>
+    <app-grid gapType="vertical"
+              tilePadding="5px"
+              class="app-sidebar__layers-block app-border">
+      <app-grid-tile *ngFor="let layer of layers; trackBy: trackByFn.bind(this); let index = index; let first = first; let last = last"
+                      display="row"
+                      contentAlign="left center">
+          <app-grid [cols]="3">
+            <app-grid-tile [colspan]="1">
+              <span (click)="selectLayer(layer)">
+                {{ layer.name }}
+              </span>
+            </app-grid-tile>
+
+            <app-grid-tile [colspan]="2"
+                            display="row"
+                            contentAlign="left center">
+              <app-button *ngIf="!first"
+                          size="small"
+                          (click)="onReorderClick(layers[index - 1], layer)">
+                up
+              </app-button>
+
+              <app-button *ngIf="!last"
+                          size="small"
+                          (click)="onReorderClick(layer, layers[index + 1])">
+                down
+              </app-button>
+
+              <ng-container *ngIf="!first && !last">
+                <app-button size="small">
+                  first
+                </app-button>
+
+                <app-button size="small">
+                  last
+                </app-button>
+              </ng-container>
+            </app-grid-tile>
+          </app-grid>
+      </app-grid-tile>
+    </app-grid>
+  </app-grid-tile>
+</app-grid>

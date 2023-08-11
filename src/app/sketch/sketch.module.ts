@@ -9,6 +9,8 @@ import { ButtonModule } from '@ui/button/button.module';
 import { SketchState } from './sketch.state';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { MenuComponent } from './menu/menu.component';
+import { GridModule } from '../ui/grid/grid.module';
+import { DirectivesModule } from '@shared/directives/directives.module';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,13 @@ import { MenuComponent } from './menu/menu.component';
     SidebarComponent,
     MenuComponent,
   ],
-  imports: [CommonModule, SketchRoutingModule, ButtonModule],
   providers: [SketchState],
+  imports: [
+    CommonModule,
+    SketchRoutingModule,
+    ButtonModule,
+    GridModule,
+    DirectivesModule,
+  ],
 })
 export class SketchModule {}

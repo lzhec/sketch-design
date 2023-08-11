@@ -76,7 +76,7 @@ $warning-color-25: app-color(warning-color, 0.25);
 
   &--small {
     height: 24px;
-    min-width: 80px;
+    min-width: 40px;
     border-radius: 4px;
 
     @include button-text-3-font-styles();

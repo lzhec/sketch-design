@@ -1,0 +1,169 @@
+@use 'sass:math';
+
+@import 'core/screen-sizes';
+
+.app-grid {
+  --cols: 1;
+  --gap: 0px;
+
+  $root: &;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+
+  &__body {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  &.--inner-gap {
+    & > #{$root}__body {
+      margin: calc(-1 * math.div(var(--gap), 2));
+
+      $width: calc(100% + var(--gap));
+
+      width: $width;
+      max-width: $width;
+
+      & > .app-grid-tile {
+        margin: calc(math.div(var(--gap), 2));
+
+        $width: calc(100% * math.div(var(--colspan), var(--cols)) - var(--gap));
+
+        width: $width;
+        max-width: $width;
+      }
+    }
+  }
+
+  &.--full-gap {
+    & > #{$root}__body {
+      margin: calc(math.div(var(--gap), 2));
+
+      $width: calc(100% - var(--gap));
+
+      width: $width;
+      max-width: $width;
+
+      & > .app-grid-tile {
+        margin: calc(math.div(var(--gap), 2));
+
+        $width: calc(100% * math.div(var(--colspan), var(--cols)) - var(--gap));
+
+        width: $width;
+        max-width: $width;
+      }
+    }
+  }
+
+  &.--horizontal-gap {
+    & > #{$root}__body {
+      margin: 0px calc(-1 * math.div(var(--gap), 2));
+
+      $width: calc(100% + var(--gap));
+
+      width: $width;
+      max-width: $width;
+
+      & > .app-grid-tile {
+        margin: 0px calc(math.div(var(--gap), 2));
+
+        $width: calc(100% * math.div(var(--colspan), var(--cols)) - var(--gap));
+
+        width: $width;
+        max-width: $width;
+      }
+    }
+  }
+
+  &.--vertical-gap {
+    & > #{$root}__body {
+      margin: calc(-1 * math.div(var(--gap), 2)) 0px;
+      width: 100%;
+      max-width: 100%;
+
+      & > .app-grid-tile {
+        margin: calc(math.div(var(--gap), 2)) 0px;
+
+        $width: calc(100% * math.div(var(--colspan), var(--cols)));
+
+        width: $width;
+        max-width: $width;
+      }
+    }
+  }
+
+  &.--breakpoints-enable {
+    @include less_then_s_screen {
+      &.--inner-gap {
+        & > .app-grid__body {
+          margin: calc(-1 * math.div(var(--gap), 2)) 0px;
+
+          width: 100%;
+          max-width: 100%;
+
+          & > .app-grid-tile {
+            margin: calc(math.div(var(--gap), 2)) 0px;
+
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+
+      &.--full-gap {
+        & > .app-grid__body {
+          margin: calc(math.div(var(--gap), 2));
+
+          $width: calc(100% - var(--gap));
+
+          width: $width;
+          max-width: $width;
+
+          & > .app-grid-tile {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+
+      &.--horizontal-gap {
+        & > .app-grid__body {
+          margin: 0px;
+
+          width: 100%;
+          max-width: 100%;
+
+          & > .app-grid-tile {
+            margin: 0px;
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+
+      &.--vertical-gap {
+        & > .app-grid__body {
+          margin: calc(-1 * math.div(var(--gap), 2)) 0px;
+
+          width: 100%;
+          max-width: 100%;
+
+          & > .app-grid-tile {
+            width: 100%;
+            max-width: 100%;
+          }
+        }
+      }
+
+      & > .app-grid__body > .app-grid-tile {
+        &[blank='true'] {
+          display: none !important;
+        }
+      }
+    }
+  }
+}

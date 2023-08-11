@@ -72,6 +72,21 @@ export class CanvasComponent implements AfterViewInit {
       });
   }
 
+  public reordeerLayersHandler(predecessor: Layer, follower: Layer): void {
+    const predecessorCanvas =
+      this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
+        `[id="${predecessor.id}"]`,
+      );
+
+    const followerCanvas =
+      this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
+        `[id="${follower.id}"]`,
+      );
+
+    predecessorCanvas.style.zIndex = `${predecessor.level}`;
+    followerCanvas.style.zIndex = `${follower.level}`;
+  }
+
   public selectLayerHandler(layer: Layer): void {
     const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
       `[id="${layer.id}"]`,
@@ -96,7 +111,6 @@ export class CanvasComponent implements AfterViewInit {
 
     switch (toolType) {
       case Tool.Frame:
-        // this.listenToMoveCanvas();
         break;
 
       case Tool.Resize:
@@ -215,18 +229,18 @@ export class CanvasComponent implements AfterViewInit {
           name: `layer ${this.state.maxLayerIndex}`,
           type: 'image',
           level: this.state.maxLayerIndex,
-          data: ctx,
           originalData: originalImg,
           width: originalImg.naturalWidth || originalImg.width,
           height: originalImg.naturalHeight || originalImg.height,
           originalWidth: originalImg.naturalWidth || originalImg.width,
           originalHeight: originalImg.naturalHeight || originalImg.height,
+          isHidden: false,
         };
 
         const layers = this.state.layers$.value;
 
         layers.push(newLayer);
-        this.state.layers$.next(layers);
+        this.state.layers$.next(layers.sort((a, b) => a.level - b.level));
         this.downloadEvent.next();
       };
     };
