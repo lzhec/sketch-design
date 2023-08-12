@@ -150,10 +150,11 @@ export class CanvasComponent implements AfterViewInit {
       frame.id = `${Tool.Frame}-${canvas.id}`;
       // frame.style.left = `${coords.left}px`;
       // frame.style.top = `${coords.top}px`;
-      frame.style.left = `${canvas.offsetLeft}px`;
-      frame.style.top = `${canvas.offsetTop}px`;
-      frame.style.width = `${canvas.width}px`;
-      frame.style.height = `${canvas.height}px`;
+      const rect = canvas.getBoundingClientRect();
+      frame.style.left = `${rect.left}px`;
+      frame.style.top = `${rect.top}px`;
+      frame.style.width = `${rect.width}px`;
+      frame.style.height = `${rect.height}px`;
 
       tl.setAttribute('side', ResizeToolPointType.TopLeft);
       tr.setAttribute('side', ResizeToolPointType.TopRight);
@@ -273,10 +274,17 @@ export class CanvasComponent implements AfterViewInit {
         const w = canvas.offsetLeft + canvas.width / 2;
         const h = canvas.offsetTop + canvas.height / 2;
         let ctx: CanvasRenderingContext2D;
+        let canvasRect = canvas.getBoundingClientRect();
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
+        const canvasRectWidth = canvasRect.width;
+        const canvasRectHeight = canvasRect.height;
         // const originalImg = new Image();
         // originalImg.src = canvas.toDataURL();
+        const canvasPrevRotation =
+          +canvas.style.rotate?.replace('deg', '') || 0;
+        const framePreviousRotation =
+          +frame.style.rotate?.replace('deg', '') || 0;
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => ({
@@ -295,22 +303,14 @@ export class CanvasComponent implements AfterViewInit {
                 const rad = Math.atan2(deltaY, deltaX);
                 let deg = Math.round((rad * 180 - 270) / Math.PI);
 
-                const deltaX2 =
-                  -moveEvent.startEvent.offsetX +
-                  moveEvent.originalEvent.offsetX;
-
-                const deltaY2 =
-                  -moveEvent.startEvent.offsetY +
-                  moveEvent.originalEvent.offsetY;
-
-                const rad2 = Math.atan2(deltaY2, deltaX2);
-
                 if (deg < 0) {
                   deg = (deg + 360) % 360;
                 }
 
                 frame.style.rotate = `${deg}deg`;
-                canvas.style.transform = `rotate(${deg}deg)`;
+                canvas.style.rotate = `${
+                  canvasPrevRotation - framePreviousRotation + deg
+                }deg`;
 
                 // ctx = canvas.getContext('2d');
 
@@ -338,16 +338,25 @@ export class CanvasComponent implements AfterViewInit {
                   moveEvent.startEvent.pageY +
                   moveEvent.coords.top;
 
-                canvas.style.left = `${deltaX}px`;
-                canvas.style.top = `${deltaY}px`;
-                frame.style.left = `${deltaX}px`;
-                frame.style.top = `${deltaY}px`;
+                canvasRect = canvas.getBoundingClientRect();
+
+                canvas.style.left = `${
+                  deltaX - canvasRect.left + canvas.offsetLeft
+                }px`;
+                canvas.style.top = `${
+                  deltaY - canvasRect.top + canvas.offsetTop
+                }px`;
+                frame.style.left = `${
+                  deltaX - canvasRect.left + frame.offsetLeft
+                }px`;
+                frame.style.top = `${
+                  deltaY - canvasRect.top + frame.offsetTop
+                }px`;
 
                 break;
 
               case Tool.Resize:
                 const stopSignal = canvas.width <= 10 || canvas.height <= 10;
-
                 const layer = this.state.currentLayer;
                 const side = this.currentTool.getAttribute('side');
                 const isProportional = true;
@@ -362,13 +371,6 @@ export class CanvasComponent implements AfterViewInit {
                     deltaY =
                       moveEvent.originalEvent.pageY -
                       moveEvent.startEvent.pageY;
-
-                    console.log(
-                      ResizeToolPointType.TopLeft,
-                      deltaX,
-                      deltaY,
-                      stopSignal,
-                    );
 
                     if (deltaX >= 0 && stopSignal) {
                       console.log('STOP');
@@ -390,9 +392,11 @@ export class CanvasComponent implements AfterViewInit {
                       event.clientX + deltaX,
                     )}px`;
                     frame.style.top = `${Math.floor(event.clientY + deltaY)}px`;
-                    frame.style.width = `${Math.floor(canvasWidth - deltaX)}px`;
+                    frame.style.width = `${Math.floor(
+                      canvasRectWidth - deltaX,
+                    )}px`;
                     frame.style.height = `${Math.floor(
-                      canvasHeight - deltaY,
+                      canvasRectHeight - deltaY,
                     )}px`;
                     canvas.style.left = `${Math.floor(
                       event.clientX + deltaX,

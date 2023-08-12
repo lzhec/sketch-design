@@ -1,4 +1,5 @@
 export type ToolbarEventType =
+  | 'default'
   | 'undo'
   | 'redo'
   | 'moving'
