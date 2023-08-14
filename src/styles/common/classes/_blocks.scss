@@ -112,12 +112,15 @@ $bg-block-1-color: app-color(bg-block-1-color);
   z-index: 999;
   cursor: move;
 }
-.app-sketch-frame-resize-point {
+.app-sketch-frame-resize-point,
+.app-sketch-frame-distortion-point {
   position: absolute;
   z-index: 999;
   width: 20px;
   height: 20px;
+}
 
+.app-sketch-frame-resize-point {
   &[side="top-left"] {
     top: -10px;
     left: -10px;
@@ -140,6 +143,30 @@ $bg-block-1-color: app-color(bg-block-1-color);
     right: -10px;
     bottom: -10px;
     cursor: se-resize;
+  }
+}
+
+.app-sketch-frame-distortion-point {
+  cursor: pointer;
+
+  &[side="top-left"] {
+    top: -10px;
+    left: -10px;
+  }
+
+  &[side="top-right"] {
+    right: -10px;
+    top: -10px;
+  }
+
+  &[side="bottom-left"] {
+    left: -10px;
+    bottom: -10px;
+  }
+
+  &[side="bottom-right"] {
+    right: -10px;
+    bottom: -10px;
   }
 }
 

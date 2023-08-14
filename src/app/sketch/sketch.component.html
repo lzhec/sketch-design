@@ -2,7 +2,7 @@
 
 <div style="display: flex; height: 100%;">
   <app-toolbar #toolbar
-              >
+               (quickToolEvent)="canvas.toolbarQuickEventHandler($event)">
   </app-toolbar>
 
   <app-canvas #canvas

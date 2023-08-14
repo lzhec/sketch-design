@@ -1,4 +1,3 @@
-export type CanvasEventType = 'download';
 export interface MoveEvent {
   originalEvent: MouseEvent;
   deltaX: number;

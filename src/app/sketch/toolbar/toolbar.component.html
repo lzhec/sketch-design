@@ -1,7 +1,25 @@
 <app-grid>
   <app-grid-tile>
-    <app-button size="small">
+    <app-button size="small"
+                (click)="onToolClick(Tool.Frame)">
+      transform
+    </app-button>
+
+    <app-button size="small"
+                (click)="onToolClick(Tool.Distortion)">
       distortion
+    </app-button>
+  </app-grid-tile>
+
+  <app-grid-tile display="row">
+    <app-button size="small"
+                (click)="onMirrorHorizontalToolClick()">
+      >
+    </app-button>
+
+    <app-button size="small"
+                (click)="onMirrorVerticalToolClick()">
+      ^
     </app-button>
   </app-grid-tile>
 </app-grid>

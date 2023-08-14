@@ -1,48 +1,76 @@
 <div #viewport
      class="app-canvas__canvas app-bg-10 app-border"
      style="width: 800px; height: 600px;">
+  <ng-container *ngLet="{
+                  _canvas: currentCanvas$ | async,
+                  _canvasRect: currentCanvasRect$ | async,
+                  _tool: state.currentTool$ | async
+                } as obj" >
+    <div class="app-sketch-frame app-frame-border"
+         [attr.id]="Tool.Frame + '-' + obj._canvas?.id"
+         [attr.tool]="Tool.Frame"
+         [style.display]="obj._canvas ? 'block' : 'none'"
+         [style.left]="obj._canvasRect?.left + 'px'"
+         [style.top]="obj._canvasRect?.top + 'px'"
+         [style.width]="obj._canvasRect?.width + 'px'"
+         [style.height]="obj._canvasRect?.height + 'px'">
+
+      <ng-container *ngIf="obj._tool === 'frame' || obj._tool === 'resize' || obj._tool === 'rotation'">
+        <div [attr.id]="Tool.Rotation + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Rotation"
+            class="app-sketch-frame-{{Tool.Rotation}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.TopLeft + '-' + Tool.Resize + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Resize"
+            [attr.side]="ToolPointType.TopLeft"
+            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.TopRight + '-' + Tool.Resize + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Resize"
+            [attr.side]="ToolPointType.TopRight"
+            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.BottomLeft + '-' + Tool.Resize + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Resize"
+            [attr.side]="ToolPointType.BottomLeft"
+            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Resize + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Resize"
+            [attr.side]="ToolPointType.BottomRight"
+            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="obj._tool === 'distortion'">
+        <div [attr.id]="ToolPointType.TopLeft + '-' + Tool.Distortion + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Distortion"
+            [attr.side]="ToolPointType.TopLeft"
+            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.TopRight + '-' + Tool.Distortion + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Distortion"
+            [attr.side]="ToolPointType.TopRight"
+            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.BottomLeft + '-' + Tool.Distortion + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Distortion"
+            [attr.side]="ToolPointType.BottomLeft"
+            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
+        </div>
+
+        <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Distortion + '-' + obj._canvas?.id"
+            [attr.tool]="Tool.Distortion"
+            [attr.side]="ToolPointType.BottomRight"
+            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
 </div>
-
-<!-- <div [attr.type]="Tool.Frame"
-     class="app-sketch-frame">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.TopLeft"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.TopCenter"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.TopRight"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.BottomLeft"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.BottomCenter"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.BottomRight"
-     class="app-sketch-frame-scale-point">
-</div> -->
-
-<!-- <div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.LeftCenter"
-     class="app-sketch-frame-scale-point">
-</div>
-
-<div [attr.type]="Tool.Scaling"
-     [attr.side]="ScalingToolPointType.RightCenter"
-     class="app-sketch-frame-scale-point">
-</div> -->

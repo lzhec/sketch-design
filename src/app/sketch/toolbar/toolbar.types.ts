@@ -1,25 +1,12 @@
-export type ToolbarEventType =
-  | 'default'
-  | 'undo'
-  | 'redo'
-  | 'moving'
-  | 'rotation'
-  | 'resize'
-  | 'deformation'
-  | 'mirroring';
-
-export interface ToolbarEvent {
-  event: ToolbarEventType;
-  entity?: File | string;
-}
-
 export enum Tool {
   Frame = 'frame',
-  Rotation = 'rotation-point',
-  Resize = 'resize-point',
+  Rotation = 'rotation',
+  Resize = 'resize',
+  Distortion = 'distortion',
+  Mirror = 'mirror',
 }
 
-export enum ResizeToolPointType {
+export enum ToolPointType {
   TopLeft = 'top-left',
   TopCenter = 'top-center',
   TopRight = 'top-right',
@@ -29,3 +16,10 @@ export enum ResizeToolPointType {
   LeftCenter = 'left-center',
   RightCenter = 'right-center',
 }
+
+export interface QuickToolEvent {
+  tool: Tool;
+  type?: MirrorToolType;
+}
+
+export type MirrorToolType = 'vertical' | 'horizontal';

@@ -24,8 +24,13 @@ import {
 } from 'rxjs';
 import { Layer } from '../sketch.types';
 import { SketchState } from '../sketch.state';
-import { MoveEvent } from './canvas.types';
-import { ResizeToolPointType, Tool } from '../toolbar/toolbar.types';
+import {
+  ToolPointType,
+  Tool,
+  QuickToolEvent,
+  MirrorToolType,
+} from '../toolbar/toolbar.types';
+import { BaseObject } from '@shared/base/base-object';
 
 @Component({
   selector: 'app-canvas',
@@ -33,21 +38,36 @@ import { ResizeToolPointType, Tool } from '../toolbar/toolbar.types';
   styleUrls: ['./canvas.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CanvasComponent implements AfterViewInit {
+export class CanvasComponent extends BaseObject implements AfterViewInit {
   @ViewChild('viewport') canvas: ElementRef<HTMLDivElement>;
 
   @Output() public downloadEvent = new EventEmitter<void>();
 
   private mousedown$ = new BehaviorSubject<MouseEvent>(null);
-  private currentCanvas$ = new BehaviorSubject<HTMLCanvasElement>(null);
-  private currentFrame$ = new BehaviorSubject<HTMLDivElement>(null);
+  public currentCanvas$ = new BehaviorSubject<HTMLCanvasElement>(null);
+  public currentCanvasRect$ = new BehaviorSubject<DOMRect>(null);
 
-  private currentTool: HTMLDivElement;
+  public currentTool: Tool;
+  private currentToolElement: HTMLDivElement;
 
   public Tool = Tool;
-  public ResizeToolPointType = ResizeToolPointType;
+  public ToolPointType = ToolPointType;
 
-  constructor(private state: SketchState) {}
+  constructor(public state: SketchState) {
+    super();
+
+    this.state.currentTool$.pipe(takeUntil(this.destroy$)).subscribe((tool) => {
+      // switch (event) {
+      //   case 'default':
+      //   case 'move':
+      //   case 'resize'
+      // }
+      // const tools: NodeListOf<HTMLDivElement> = this.getTools();
+      // tools.forEach((tool) => {
+      //   const attribute = tool.getAttribute('tool');
+      // });
+    });
+  }
 
   public ngAfterViewInit(): void {
     fromEvent(this.canvas.nativeElement, 'mousedown')
@@ -57,22 +77,67 @@ export class CanvasComponent implements AfterViewInit {
         const element = event.target as HTMLCanvasElement | HTMLDivElement;
 
         if (!element.id) {
+          this.currentCanvas$.next(null);
+          this.currentCanvasRect$.next(null);
+
           return;
         }
 
         this.mousedown$.next(event);
 
-        const type = element.getAttribute('type');
+        const tool = element.getAttribute('tool') as Tool;
 
-        if (type) {
-          this.selectLayerByFrame(element as HTMLDivElement, type as Tool);
+        if (tool) {
+          this.selectLayerByFrame(element as HTMLDivElement, tool);
         } else {
           this.selectLayerByCanvas(element as HTMLCanvasElement);
         }
       });
   }
 
-  public reordeerLayersHandler(predecessor: Layer, follower: Layer): void {
+  private mirrorCanvas(type: MirrorToolType): void {
+    const canvas = this.currentCanvas$.value;
+
+    if (!canvas) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL();
+
+    img.onload = () => {
+      ctx.save();
+
+      if (type === 'horizontal') {
+        ctx.translate(Math.floor(canvas.width / 2), 0);
+        ctx.scale(-1, 1);
+        ctx.translate(-Math.floor(canvas.width / 2), 0);
+
+        // ctx.translate(0, 0);
+        // ctx.translate(canvas.width / 2, canvas.height / 2);
+        // console.log(+canvas.style.rotate.replace('deg', '') * Math.PI);
+        // ctx.rotate((180 - +canvas.style.rotate.replace('deg', '')) * Math.PI);
+      } else {
+        ctx.translate(0, Math.floor(canvas.height / 2));
+        ctx.scale(1, -1);
+        ctx.translate(0, -Math.floor(canvas.height / 2));
+      }
+
+      ctx.drawImage(img, 0, 0);
+      // ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
+    };
+  }
+
+  public toolbarQuickEventHandler(event: QuickToolEvent): void {
+    switch (event.tool) {
+      case 'mirror':
+        this.mirrorCanvas(event.type);
+    }
+  }
+
+  public reorderLayersHandler(predecessor: Layer, follower: Layer): void {
     const predecessorCanvas =
       this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
         `[id="${predecessor.id}"]`,
@@ -99,111 +164,59 @@ export class CanvasComponent implements AfterViewInit {
     this.selectLayerByCanvas(canvas);
   }
 
-  private selectLayerByFrame(element: HTMLDivElement, toolType: Tool): void {
-    const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
-      `[id="${this.state.currentLayer.id}"]`,
-    );
-    this.currentCanvas$.next(canvas);
+  private getTools(): NodeListOf<HTMLDivElement> {
+    return this.canvas.nativeElement.querySelectorAll<HTMLDivElement>('[tool]');
+  }
 
-    if (toolType !== Tool.Frame) {
-      this.currentTool = element;
-    }
+  private selectLayerByFrame(element: HTMLDivElement, tool: Tool): void {
+    // const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
+    //   `[id="${this.state.currentLayer.id}"]`,
+    // );
 
-    switch (toolType) {
-      case Tool.Frame:
-        break;
+    this.state.currentTool$.next(tool);
+    this.currentToolElement = element;
 
-      case Tool.Resize:
-        break;
-    }
-
-    this.listenToMoveCanvas(toolType);
+    this.listenToMoveCanvas(tool);
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
-    let frame: HTMLDivElement;
+    const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+      `[tool="${Tool.Frame}"]`,
+    );
+
+    frame.style.rotate = '0deg';
 
     if (!this.state.currentLayer || this.state.currentLayer.id !== canvas.id) {
-      if (this.state.currentLayer) {
-        const previousFrame = this.canvas.nativeElement.querySelector(
-          `[id="${Tool.Frame}-${this.state.currentLayer.id}"]`,
-        );
-
-        this.canvas.nativeElement.removeChild(previousFrame);
-      }
-
       this.state.currentLayer = this.state.layers$.value.find(
         (layer) => layer.id === canvas.id,
       );
-
-      frame = document.createElement('div');
-      // const coords = this.getCanvasCoords(canvas);
-
-      const tl = document.createElement('div');
-      const tr = document.createElement('div');
-      const bl = document.createElement('div');
-      const br = document.createElement('div');
-      const rot = document.createElement('div');
-
-      frame.setAttribute('type', Tool.Frame);
-      frame.classList.add(...['app-sketch-frame', 'app-frame-border']);
-      frame.id = `${Tool.Frame}-${canvas.id}`;
-      // frame.style.left = `${coords.left}px`;
-      // frame.style.top = `${coords.top}px`;
-      const rect = canvas.getBoundingClientRect();
-      frame.style.left = `${rect.left}px`;
-      frame.style.top = `${rect.top}px`;
-      frame.style.width = `${rect.width}px`;
-      frame.style.height = `${rect.height}px`;
-
-      tl.setAttribute('side', ResizeToolPointType.TopLeft);
-      tr.setAttribute('side', ResizeToolPointType.TopRight);
-      bl.setAttribute('side', ResizeToolPointType.BottomLeft);
-      br.setAttribute('side', ResizeToolPointType.BottomRight);
-
-      const resizePoints = [tl, tr, bl, br];
-
-      resizePoints.forEach((point) => {
-        const side = point.getAttribute('side');
-        point.id = `${side}-${Tool.Resize}-${canvas.id}`;
-        point.classList.add(
-          ...['app-sketch-frame-resize-point', 'app-frame-border'],
-        );
-        point.setAttribute('type', Tool.Resize);
-        frame.appendChild(point);
-      });
-
-      rot.id = `${Tool.Rotation}-${canvas.id}`;
-      rot.classList.add(
-        ...['app-sketch-frame-rotation-point', 'app-frame-border'],
-      );
-      rot.setAttribute('type', Tool.Rotation);
-      frame.appendChild(rot);
-
-      this.canvas.nativeElement.appendChild(frame);
-    } else {
-      frame = this.canvas.nativeElement.querySelector(
-        `[id="${Tool.Frame}-${canvas.id}"]`,
-      );
     }
 
-    this.currentCanvas$.next(canvas);
-    this.currentFrame$.next(frame);
+    let canvasRect = canvas.getBoundingClientRect();
 
+    frame.style.left = `${canvasRect.left}px`;
+    frame.style.top = `${canvasRect.top}px`;
+    frame.style.width = `${canvasRect.width}px`;
+    frame.style.height = `${canvasRect.height}px`;
+
+    this.currentCanvas$.next(canvas);
+    this.state.currentTool$.next(Tool.Resize);
     this.listenToMoveCanvas(Tool.Frame);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
     const layer = document.createElement('canvas');
-    layer.width = img.width > 800 ? 800 : img.width;
-    layer.height = img.height > 600 ? 600 : img.height;
+    // layer.width = img.width > 800 ? 800 : img.width;
+    // layer.height = img.height > 600 ? 600 : img.height;
+    layer.width = img.width;
+    layer.height = img.height;
 
     return layer;
   }
 
-  public drawLayer(context: CanvasRenderingContext2D, layer: any): void {
-    context.drawImage(layer.canvas, 0, 0);
-  }
+  // public drawLayer(context: CanvasRenderingContext2D, layer: any): void {
+  //   context.drawImage(layer.canvas, 0, 0);
+  // }
 
   public addImage(file: File): void {
     const reader = new FileReader();
@@ -260,21 +273,23 @@ export class CanvasComponent implements AfterViewInit {
     };
   }
 
-  private listenToMoveCanvas(toolType: Tool): void {
+  private listenToMoveCanvas(tool: Tool): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
-    const dragStart$ = zip([
-      this.mousedown$,
-      this.currentCanvas$,
-      this.currentFrame$,
-    ]).pipe(filter(([event, canvas, frame]) => !!event && !!canvas && !!frame));
+    const dragStart$ = zip([this.mousedown$, this.currentCanvas$]).pipe(
+      filter(([event, canvas]) => !!event && !!canvas),
+    );
     const dragMove$ = dragStart$.pipe(
-      switchMap(([event, canvas, frame]) => {
+      switchMap(([event, canvas]) => {
+        const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+          `[tool="${Tool.Frame}"]`,
+        );
         const coords = this.getCanvasCoords(canvas);
         const w = canvas.offsetLeft + canvas.width / 2;
         const h = canvas.offsetTop + canvas.height / 2;
         let ctx: CanvasRenderingContext2D;
         let canvasRect = canvas.getBoundingClientRect();
+        let side: string;
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         const canvasRectWidth = canvasRect.width;
@@ -296,7 +311,7 @@ export class CanvasComponent implements AfterViewInit {
             let deltaX: number;
             let deltaY: number;
 
-            switch (toolType) {
+            switch (tool) {
               case Tool.Rotation:
                 deltaX = w - moveEvent.originalEvent.pageX;
                 deltaY = h - moveEvent.originalEvent.pageY;
@@ -355,16 +370,35 @@ export class CanvasComponent implements AfterViewInit {
 
                 break;
 
+              case Tool.Distortion:
+                side = this.currentToolElement.getAttribute('side');
+
+                switch (side) {
+                  case ToolPointType.TopLeft:
+                    break;
+
+                  case ToolPointType.TopRight:
+                    break;
+
+                  case ToolPointType.BottomLeft:
+                    break;
+
+                  case ToolPointType.BottomRight:
+                    break;
+                }
+
+                break;
+
               case Tool.Resize:
                 const stopSignal = canvas.width <= 10 || canvas.height <= 10;
                 const layer = this.state.currentLayer;
-                const side = this.currentTool.getAttribute('side');
                 const isProportional = true;
                 const sizeProportion =
                   layer.originalHeight / layer.originalWidth;
+                side = this.currentToolElement.getAttribute('side');
 
                 switch (side) {
-                  case ResizeToolPointType.TopLeft:
+                  case ToolPointType.TopLeft:
                     deltaX =
                       moveEvent.originalEvent.pageX -
                       moveEvent.startEvent.pageX;
@@ -409,7 +443,7 @@ export class CanvasComponent implements AfterViewInit {
 
                     break;
 
-                  case ResizeToolPointType.TopRight:
+                  case ToolPointType.TopRight:
                     deltaX =
                       moveEvent.originalEvent.pageX - moveEvent.coords.left;
                     deltaY =
@@ -444,7 +478,7 @@ export class CanvasComponent implements AfterViewInit {
 
                     break;
 
-                  case ResizeToolPointType.BottomLeft:
+                  case ToolPointType.BottomLeft:
                     deltaX =
                       moveEvent.originalEvent.pageX -
                       moveEvent.startEvent.pageX;
@@ -482,7 +516,7 @@ export class CanvasComponent implements AfterViewInit {
 
                     break;
 
-                  case ResizeToolPointType.BottomRight:
+                  case ToolPointType.BottomRight:
                     deltaX =
                       moveEvent.originalEvent.pageX - moveEvent.coords.left;
                     deltaY =
@@ -561,7 +595,6 @@ export class CanvasComponent implements AfterViewInit {
           // console.log('DRAG END', event);
 
           this.mousedown$.next(null);
-          this.currentCanvas$.next(null);
         }),
       ),
     ]).subscribe();

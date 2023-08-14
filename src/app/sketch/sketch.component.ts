@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
-import { ToolbarEvent } from './toolbar/toolbar.types';
 import { CanvasComponent } from './canvas/canvas.component';
 import { SketchState } from './sketch.state';
 import { SidebarEvent } from './sidebar/sidebar.types';
@@ -32,7 +31,7 @@ export class SketchComponent {
         break;
 
       case 'layer-reorder':
-        this.canvasComponent.reordeerLayersHandler(
+        this.canvasComponent.reorderLayersHandler(
           event.entity[0],
           event.entity[1],
         );
