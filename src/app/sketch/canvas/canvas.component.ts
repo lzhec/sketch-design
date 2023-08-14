@@ -97,35 +97,39 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
   private mirrorCanvas(type: MirrorToolType): void {
     const canvas = this.currentCanvas$.value;
+    let deg = -canvas.style.rotate.replace('deg', '');
+    // const rect = canvas.getBoundingClientRect();
+    // const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+    //   `[tool=${Tool.Frame}]`,
+    // );
 
     if (!canvas) {
       return;
     }
 
+    if (deg < 0) {
+      deg = (deg + 360) % 360;
+    }
+
+    canvas.style.rotate = `${deg}deg`;
     const ctx = canvas.getContext('2d');
     const img = document.createElement('img');
     img.src = canvas.toDataURL();
 
     img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
 
       if (type === 'horizontal') {
-        ctx.translate(Math.floor(canvas.width / 2), 0);
         ctx.scale(-1, 1);
-        ctx.translate(-Math.floor(canvas.width / 2), 0);
-
-        // ctx.translate(0, 0);
-        // ctx.translate(canvas.width / 2, canvas.height / 2);
-        // console.log(+canvas.style.rotate.replace('deg', '') * Math.PI);
-        // ctx.rotate((180 - +canvas.style.rotate.replace('deg', '')) * Math.PI);
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
       } else {
-        ctx.translate(0, Math.floor(canvas.height / 2));
         ctx.scale(1, -1);
-        ctx.translate(0, -Math.floor(canvas.height / 2));
+        ctx.translate(-canvas.width / 2, -canvas.height / 2);
       }
 
       ctx.drawImage(img, 0, 0);
-      // ctx.drawImage(img, -img.width / 2, -img.height / 2);
       ctx.restore();
     };
   }
@@ -315,8 +319,9 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
               case Tool.Rotation:
                 deltaX = w - moveEvent.originalEvent.pageX;
                 deltaY = h - moveEvent.originalEvent.pageY;
-                const rad = Math.atan2(deltaY, deltaX);
-                let deg = Math.round((rad * 180 - 270) / Math.PI);
+                const rad = -Math.atan2(deltaX, deltaY);
+                let deg = Math.round((rad * 180) / Math.PI);
+                // let deg = (rad * 180) / Math.PI;
 
                 if (deg < 0) {
                   deg = (deg + 360) % 360;
