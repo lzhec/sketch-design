@@ -97,21 +97,26 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
   private mirrorCanvas(type: MirrorToolType): void {
     const canvas = this.currentCanvas$.value;
-    let deg = -canvas.style.rotate.replace('deg', '');
-    // const rect = canvas.getBoundingClientRect();
-    // const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
-    //   `[tool=${Tool.Frame}]`,
-    // );
 
     if (!canvas) {
       return;
     }
 
-    if (deg < 0) {
-      deg = (deg + 360) % 360;
+    // const rect = canvas.getBoundingClientRect();
+    const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+      `[tool=${Tool.Frame}]`,
+    );
+
+    if (frame.offsetLeft !== canvas.offsetLeft) {
+      let deg = -canvas.style.rotate.replace('deg', '');
+
+      if (deg < 0) {
+        deg = (deg + 360) % 360;
+      }
+
+      canvas.style.rotate = `${deg}deg`;
     }
 
-    canvas.style.rotate = `${deg}deg`;
     const ctx = canvas.getContext('2d');
     const img = document.createElement('img');
     img.src = canvas.toDataURL();
@@ -247,6 +252,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           name: `layer ${this.state.maxLayerIndex}`,
           type: 'image',
           level: this.state.maxLayerIndex,
+          data: originalImg,
           originalData: originalImg,
           width: originalImg.naturalWidth || originalImg.width,
           height: originalImg.naturalHeight || originalImg.height,

@@ -7,6 +7,7 @@ export interface Layer {
   level: number;
   width: number;
   height: number;
+  data: HTMLImageElement;
   originalData: HTMLImageElement;
   originalWidth: number;
   originalHeight: number;

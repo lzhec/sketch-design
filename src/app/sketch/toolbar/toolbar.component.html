@@ -1,4 +1,5 @@
-<app-grid>
+<app-grid gap="10px"
+          gapType="vertical">
   <app-grid-tile>
     <app-button size="small"
                 (click)="onToolClick(Tool.Frame)">
@@ -6,6 +7,7 @@
     </app-button>
 
     <app-button size="small"
+                class="mrgn-top-10"
                 (click)="onToolClick(Tool.Distortion)">
       distortion
     </app-button>
@@ -18,6 +20,7 @@
     </app-button>
 
     <app-button size="small"
+                class="mrgn-lft-10"
                 (click)="onMirrorVerticalToolClick()">
       ^
     </app-button>
