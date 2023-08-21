@@ -6,71 +6,87 @@
                   _canvasRect: currentCanvasRect$ | async,
                   _tool: state.currentTool$ | async
                 } as obj" >
-    <div class="app-sketch-frame app-frame-border"
-         [attr.id]="Tool.Frame + '-' + obj._canvas?.id"
-         [attr.tool]="Tool.Frame"
-         [style.display]="obj._canvas ? 'block' : 'none'"
+    <div class="app-sketch-movement app-frame-border"
+         [attr.id]="Tool.Movement + '-' + obj._canvas?.id"
+         [attr.tool]="Tool.Movement"
+         [style.display]="obj._canvas && (obj._tool === 'movement' || obj._tool === 'resize' || obj._tool === 'rotation') ? 'block' : 'none'"
          [style.left]="obj._canvasRect?.left + 'px'"
          [style.top]="obj._canvasRect?.top + 'px'"
          [style.width]="obj._canvasRect?.width + 'px'"
          [style.height]="obj._canvasRect?.height + 'px'">
 
-      <ng-container *ngIf="obj._tool === 'frame' || obj._tool === 'resize' || obj._tool === 'rotation'">
         <div [attr.id]="Tool.Rotation + '-' + obj._canvas?.id"
             [attr.tool]="Tool.Rotation"
-            class="app-sketch-frame-{{Tool.Rotation}}-point app-frame-border">
+            class="app-sketch-{{Tool.Rotation}}-point app-frame-border">
         </div>
 
         <div [attr.id]="ToolPointType.TopLeft + '-' + Tool.Resize + '-' + obj._canvas?.id"
             [attr.tool]="Tool.Resize"
             [attr.side]="ToolPointType.TopLeft"
-            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+            class="app-sketch-{{Tool.Resize}}-point app-frame-border">
         </div>
 
         <div [attr.id]="ToolPointType.TopRight + '-' + Tool.Resize + '-' + obj._canvas?.id"
             [attr.tool]="Tool.Resize"
             [attr.side]="ToolPointType.TopRight"
-            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+            class="app-sketch-{{Tool.Resize}}-point app-frame-border">
         </div>
 
         <div [attr.id]="ToolPointType.BottomLeft + '-' + Tool.Resize + '-' + obj._canvas?.id"
             [attr.tool]="Tool.Resize"
             [attr.side]="ToolPointType.BottomLeft"
-            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+            class="app-sketch-{{Tool.Resize}}-point app-frame-border">
         </div>
 
         <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Resize + '-' + obj._canvas?.id"
             [attr.tool]="Tool.Resize"
             [attr.side]="ToolPointType.BottomRight"
-            class="app-sketch-frame-{{Tool.Resize}}-point app-frame-border">
+            class="app-sketch-{{Tool.Resize}}-point app-frame-border">
         </div>
-      </ng-container>
+    </div>
 
-      <ng-container *ngIf="obj._tool === 'distortion'">
-        <div [attr.id]="ToolPointType.TopLeft + '-' + Tool.Distortion + '-' + obj._canvas?.id"
-            [attr.tool]="Tool.Distortion"
-            [attr.side]="ToolPointType.TopLeft"
-            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
-        </div>
+    <div class="app-sketch-wrap-frame app-frame-border"
+         [attr.id]="Tool.WrapFrame + '-' + obj._canvas?.id"
+         [attr.tool]="Tool.WrapFrame"
+         [style.display]="obj._canvas && (obj._tool === 'wrap' || obj._tool === 'wrap-frame') ? 'block' : 'none'"
+         [style.left]="obj._canvasRect?.left + 'px'"
+         [style.top]="obj._canvasRect?.top + 'px'"
+         [style.width]="obj._canvasRect?.width + 'px'"
+         [style.height]="obj._canvasRect?.height + 'px'">
+      <div [attr.id]="ToolPointType.TopLeft + '-' + Tool.Wrap + '-' + obj._canvas?.id"
+           [attr.tool]="Tool.Wrap"
+           [attr.side]="ToolPointType.TopLeft"
+           data-corner="0"
+           class="app-sketch-{{Tool.Wrap}}-point app-frame-border">
+      </div>
 
-        <div [attr.id]="ToolPointType.TopRight + '-' + Tool.Distortion + '-' + obj._canvas?.id"
-            [attr.tool]="Tool.Distortion"
-            [attr.side]="ToolPointType.TopRight"
-            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
-        </div>
+      <div [attr.id]="ToolPointType.TopRight + '-' + Tool.Wrap + '-' + obj._canvas?.id"
+           [attr.tool]="Tool.Wrap"
+           [attr.side]="ToolPointType.TopRight"
+           data-corner="1"
+           class="app-sketch-{{Tool.Wrap}}-point app-frame-border">
+      </div>
 
-        <div [attr.id]="ToolPointType.BottomLeft + '-' + Tool.Distortion + '-' + obj._canvas?.id"
-            [attr.tool]="Tool.Distortion"
-            [attr.side]="ToolPointType.BottomLeft"
-            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
-        </div>
+      <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Wrap + '-' + obj._canvas?.id"
+           [attr.tool]="Tool.Wrap"
+           [attr.side]="ToolPointType.Center"
+           data-corner="2"
+           class="app-sketch-{{Tool.Wrap}}-point app-frame-border">
+      </div>
 
-        <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Distortion + '-' + obj._canvas?.id"
-            [attr.tool]="Tool.Distortion"
-            [attr.side]="ToolPointType.BottomRight"
-            class="app-sketch-frame-{{Tool.Distortion}}-point app-frame-border">
-        </div>
-      </ng-container>
+      <div [attr.id]="ToolPointType.BottomLeft + '-' + Tool.Wrap + '-' + obj._canvas?.id"
+          [attr.tool]="Tool.Wrap"
+          [attr.side]="ToolPointType.BottomLeft"
+          data-corner="3"
+          class="app-sketch-{{Tool.Wrap}}-point app-frame-border">
+      </div>
+
+      <div [attr.id]="ToolPointType.BottomRight + '-' + Tool.Wrap + '-' + obj._canvas?.id"
+          [attr.tool]="Tool.Wrap"
+          [attr.side]="ToolPointType.BottomRight"
+          data-corner="4"
+          class="app-sketch-{{Tool.Wrap}}-point app-frame-border">
+      </div>
     </div>
   </ng-container>
 </div>

@@ -28,9 +28,10 @@ import {
   ToolPointType,
   Tool,
   QuickToolEvent,
-  MirrorToolType,
+  FlipToolType,
 } from '../toolbar/toolbar.types';
 import { BaseObject } from '@shared/base/base-object';
+import { utils } from '@shared/utils/wrap';
 
 @Component({
   selector: 'app-canvas',
@@ -57,6 +58,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     super();
 
     this.state.currentTool$.pipe(takeUntil(this.destroy$)).subscribe((tool) => {
+      this.currentTool = tool;
       // switch (event) {
       //   case 'default':
       //   case 'move':
@@ -66,6 +68,34 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
       // tools.forEach((tool) => {
       //   const attribute = tool.getAttribute('tool');
       // });
+      const canvas = this.currentCanvas$.value;
+
+      if (canvas) {
+        switch (tool) {
+          case 'wrap-frame':
+            const handles: NodeListOf<HTMLDivElement> =
+              this.canvas.nativeElement.querySelectorAll<HTMLDivElement>(
+                `[tool="${Tool.Wrap}"]`,
+              );
+
+            const frame =
+              this.canvas.nativeElement.querySelector<HTMLDivElement>(
+                `[tool="${Tool.WrapFrame}"]`,
+              );
+
+            let canvasRect = canvas.getBoundingClientRect();
+
+            frame.style.left = `${canvasRect.left}px`;
+            frame.style.top = `${canvasRect.top}px`;
+            frame.style.width = `${canvasRect.width}px`;
+            frame.style.height = `${canvasRect.height}px`;
+
+            this.state.currentLayer.corners.forEach((corner, index) => {
+              handles[index].style.left = corner[0] + 'px';
+              handles[index].style.top = corner[1] + 'px';
+            });
+        }
+      }
     });
   }
 
@@ -95,7 +125,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
       });
   }
 
-  private mirrorCanvas(type: MirrorToolType): void {
+  private flipCanvas(type: FlipToolType): void {
     const canvas = this.currentCanvas$.value;
 
     if (!canvas) {
@@ -104,7 +134,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
     // const rect = canvas.getBoundingClientRect();
     const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
-      `[tool=${Tool.Frame}]`,
+      `[tool=${Tool.Movement}]`,
     );
 
     if (frame.offsetLeft !== canvas.offsetLeft) {
@@ -141,8 +171,8 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
   public toolbarQuickEventHandler(event: QuickToolEvent): void {
     switch (event.tool) {
-      case 'mirror':
-        this.mirrorCanvas(event.type);
+      case 'flip':
+        this.flipCanvas(event.type);
     }
   }
 
@@ -173,9 +203,9 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     this.selectLayerByCanvas(canvas);
   }
 
-  private getTools(): NodeListOf<HTMLDivElement> {
-    return this.canvas.nativeElement.querySelectorAll<HTMLDivElement>('[tool]');
-  }
+  // private getTools(): NodeListOf<HTMLDivElement> {
+  //   return this.canvas.nativeElement.querySelectorAll<HTMLDivElement>('[tool]');
+  // }
 
   private selectLayerByFrame(element: HTMLDivElement, tool: Tool): void {
     // const canvas = this.canvas.nativeElement.querySelector<HTMLCanvasElement>(
@@ -185,13 +215,24 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     this.state.currentTool$.next(tool);
     this.currentToolElement = element;
 
-    this.listenToMoveCanvas(tool);
+    this.listenToChangeCanvas(tool);
   }
 
   private selectLayerByCanvas(canvas: HTMLCanvasElement): void {
-    const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
-      `[tool="${Tool.Frame}"]`,
-    );
+    let frame: HTMLDivElement;
+
+    switch (this.currentTool) {
+      case 'wrap-frame':
+        frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+          `[tool="${Tool.WrapFrame}"]`,
+        );
+        break;
+
+      default:
+        frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+          `[tool="${Tool.Movement}"]`,
+        );
+    }
 
     frame.style.rotate = '0deg';
 
@@ -209,8 +250,8 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     frame.style.height = `${canvasRect.height}px`;
 
     this.currentCanvas$.next(canvas);
-    this.state.currentTool$.next(Tool.Resize);
-    this.listenToMoveCanvas(Tool.Frame);
+    this.state.currentTool$.next(Tool.Movement);
+    this.listenToChangeCanvas(Tool.Movement);
   }
 
   public createLayer(img: HTMLImageElement): HTMLCanvasElement {
@@ -258,6 +299,20 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           height: originalImg.naturalHeight || originalImg.height,
           originalWidth: originalImg.naturalWidth || originalImg.width,
           originalHeight: originalImg.naturalHeight || originalImg.height,
+          corners: [
+            [-10, -10],
+            [layer.width - 10, -10],
+            [layer.width / 2 - 10, layer.height / 2 - 10],
+            [-10, layer.height - 10],
+            [layer.width - 10, layer.height - 10],
+          ],
+          originalCorners: [
+            [-10, -10],
+            [layer.width - 10, -10],
+            [layer.width / 2 - 10, layer.height / 2 - 10],
+            [-10, layer.height - 10],
+            [layer.width - 10, layer.height - 10],
+          ],
           isHidden: false,
         };
 
@@ -283,7 +338,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     };
   }
 
-  private listenToMoveCanvas(tool: Tool): void {
+  private listenToChangeCanvas(tool: Tool): void {
     const mouseMove$: Observable<Event> = fromEvent(document, 'mousemove');
     const mouseUp$: Observable<Event> = fromEvent(document, 'mouseup');
     const dragStart$ = zip([this.mousedown$, this.currentCanvas$]).pipe(
@@ -291,15 +346,79 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     );
     const dragMove$ = dragStart$.pipe(
       switchMap(([event, canvas]) => {
-        const frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
-          `[tool="${Tool.Frame}"]`,
-        );
+        function updateUI() {
+          function drawTriangle(s1, s2, s3, d1, d2, d3) {
+            const [d1x, d2x, d3x] = utils.expandTriangle(d1, d2, d3, 0.3),
+              [s1x, s2x, s3x] = utils.expandTriangle(s1, s2, s3, 0.3);
+
+            utils.drawImageTriangle(img, ctx, s1x, s2x, s3x, d1x, d2x, d3x);
+          }
+
+          ctx.clearRect(0, 0, w, h);
+
+          drawTriangle(
+            [0, 0],
+            [w / 2, h / 2],
+            [0, h],
+            corners[0],
+            corners[2],
+            corners[3],
+          );
+          //*
+          drawTriangle(
+            [0, 0],
+            [w / 2, h / 2],
+            [w, 0],
+            corners[0],
+            corners[2],
+            corners[1],
+          );
+
+          drawTriangle(
+            [w, 0],
+            [w / 2, h / 2],
+            [w, h],
+            corners[1],
+            corners[2],
+            corners[4],
+          );
+
+          drawTriangle(
+            [0, h],
+            [w / 2, h / 2],
+            [w, h],
+            corners[3],
+            corners[2],
+            corners[4],
+          );
+
+          corners.forEach((c, i) => {
+            const s = handles[i].style;
+            s.left = c[0] + 'px';
+            s.top = c[1] + 'px';
+          });
+        }
+
+        const movement =
+          this.canvas.nativeElement.querySelector<HTMLDivElement>(
+            `[tool="${Tool.Movement}"]`,
+          );
+        const wrapFrame =
+          this.canvas.nativeElement.querySelector<HTMLDivElement>(
+            `[tool="${Tool.WrapFrame}"]`,
+          );
         const coords = this.getCanvasCoords(canvas);
-        const w = canvas.offsetLeft + canvas.width / 2;
-        const h = canvas.offsetTop + canvas.height / 2;
-        let ctx: CanvasRenderingContext2D;
+        const offsetWidthCenter = canvas.offsetLeft + canvas.width / 2;
+        const offsetHeightCenter = canvas.offsetTop + canvas.height / 2;
+        let ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = this.state.currentLayer.originalData.src;
+        let w = img.width,
+          h = img.height;
         let canvasRect = canvas.getBoundingClientRect();
         let side: string;
+        let corners = this.state.currentLayer.corners;
+        let onStartCorners = [...this.state.currentLayer.corners];
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         const canvasRectWidth = canvasRect.width;
@@ -309,7 +428,23 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
         const canvasPrevRotation =
           +canvas.style.rotate?.replace('deg', '') || 0;
         const framePreviousRotation =
-          +frame.style.rotate?.replace('deg', '') || 0;
+          +movement.style.rotate?.replace('deg', '') || 0;
+        const handles =
+          this.canvas.nativeElement.querySelectorAll<HTMLDivElement>(
+            `[tool=${Tool.Wrap}]`,
+          );
+
+        // if (!corners) {
+        //   corners = [
+        //     [-10, -10],
+        //     [canvas.width - 10, -10],
+        //     [canvas.width / 2 - 10, canvas.height / 2 - 10],
+        //     [-10, canvas.height - 10],
+        //     [canvas.width - 10, canvas.height - 10],
+        //   ];
+        // }
+
+        // updateUI();
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => ({
@@ -323,8 +458,8 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
             switch (tool) {
               case Tool.Rotation:
-                deltaX = w - moveEvent.originalEvent.pageX;
-                deltaY = h - moveEvent.originalEvent.pageY;
+                deltaX = offsetWidthCenter - moveEvent.originalEvent.pageX;
+                deltaY = offsetHeightCenter - moveEvent.originalEvent.pageY;
                 const rad = -Math.atan2(deltaX, deltaY);
                 let deg = Math.round((rad * 180) / Math.PI);
                 // let deg = (rad * 180) / Math.PI;
@@ -333,28 +468,15 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                   deg = (deg + 360) % 360;
                 }
 
-                frame.style.rotate = `${deg}deg`;
+                movement.style.rotate = `${deg}deg`;
                 canvas.style.rotate = `${
                   canvasPrevRotation - framePreviousRotation + deg
                 }deg`;
 
-                // ctx = canvas.getContext('2d');
-
-                // ctx.clearRect(0, 0, canvas.width, canvas.height);
-                // ctx.save();
-                // ctx.translate(0, 0);
-                // ctx.translate(canvas.width / 2, canvas.height / 2);
-                // ctx.rotate(rad);
-                // ctx.drawImage(
-                //   originalImg,
-                //   -(originalImg.width / 2),
-                //   -(originalImg.height / 2),
-                // );
-                // ctx.restore();
-
                 break;
 
-              case Tool.Frame:
+              case Tool.Movement:
+              case Tool.WrapFrame:
                 deltaX =
                   moveEvent.originalEvent.pageX -
                   moveEvent.startEvent.pageX +
@@ -372,31 +494,123 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                 canvas.style.top = `${
                   deltaY - canvasRect.top + canvas.offsetTop
                 }px`;
-                frame.style.left = `${
-                  deltaX - canvasRect.left + frame.offsetLeft
+                movement.style.left = `${
+                  deltaX - canvasRect.left + movement.offsetLeft
                 }px`;
-                frame.style.top = `${
-                  deltaY - canvasRect.top + frame.offsetTop
+                movement.style.top = `${
+                  deltaY - canvasRect.top + movement.offsetTop
+                }px`;
+                wrapFrame.style.left = `${
+                  deltaX - canvasRect.left + wrapFrame.offsetLeft
+                }px`;
+                wrapFrame.style.top = `${
+                  deltaY - canvasRect.top + wrapFrame.offsetTop
                 }px`;
 
                 break;
 
-              case Tool.Distortion:
+              case Tool.Wrap:
                 side = this.currentToolElement.getAttribute('side');
 
                 switch (side) {
                   case ToolPointType.TopLeft:
+                    deltaX =
+                      moveEvent.originalEvent.pageX -
+                      moveEvent.startEvent.pageX;
+                    deltaY =
+                      moveEvent.originalEvent.pageY -
+                      moveEvent.startEvent.pageY;
+
+                    // wrapFrame.style.left = `${Math.floor(
+                    //   event.clientX + deltaX,
+                    // )}px`;
+                    // wrapFrame.style.top = `${Math.floor(
+                    //   event.clientY + deltaY,
+                    // )}px`;
+                    // wrapFrame.style.width = `${Math.floor(
+                    //   canvasRectWidth - deltaX,
+                    // )}px`;
+                    // wrapFrame.style.height = `${Math.floor(
+                    //   canvasRectHeight - deltaY,
+                    // )}px`;
+                    // canvas.style.left = `${Math.floor(
+                    //   event.clientX + deltaX,
+                    // )}px`;
+                    // canvas.style.top = `${Math.floor(
+                    //   event.clientY + deltaY,
+                    // )}px`;
+                    // canvas.width = Math.floor(canvasRectWidth - deltaX);
+                    // canvas.height = Math.floor(canvasRectHeight - deltaY);
                     break;
 
                   case ToolPointType.TopRight:
+                    deltaX =
+                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
+                    deltaY =
+                      moveEvent.originalEvent.pageY -
+                      moveEvent.startEvent.pageY;
+                    break;
+
+                  case ToolPointType.Center:
+                    deltaX =
+                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
+                    deltaY =
+                      moveEvent.originalEvent.pageY - moveEvent.coords.top;
                     break;
 
                   case ToolPointType.BottomLeft:
+                    deltaX =
+                      moveEvent.originalEvent.pageX -
+                      moveEvent.startEvent.pageX;
+                    deltaY =
+                      moveEvent.originalEvent.pageY - moveEvent.coords.top;
                     break;
 
                   case ToolPointType.BottomRight:
+                    deltaX =
+                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
+                    deltaY =
+                      moveEvent.originalEvent.pageY - moveEvent.coords.top;
                     break;
                 }
+
+                const dataCorner = +this.currentToolElement.dataset['corner'];
+
+                switch (dataCorner) {
+                  case 0:
+                    corners[dataCorner] = [
+                      onStartCorners[dataCorner][0] + deltaX,
+                      onStartCorners[dataCorner][1] + deltaY,
+                    ];
+
+                    break;
+
+                  case 1:
+                    corners[dataCorner] = [
+                      deltaX,
+                      onStartCorners[dataCorner][1] + deltaY,
+                    ];
+
+                    break;
+
+                  case 3:
+                    corners[dataCorner] = [
+                      onStartCorners[dataCorner][0] + deltaX,
+                      deltaY,
+                    ];
+
+                    break;
+
+                  case 2:
+                  case 4:
+                    corners[dataCorner] = [deltaX, deltaY];
+
+                    break;
+                }
+
+                // this.state.currentLayer.corners = corners;
+
+                updateUI();
 
                 break;
 
@@ -407,6 +621,8 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                 const sizeProportion =
                   layer.originalHeight / layer.originalWidth;
                 side = this.currentToolElement.getAttribute('side');
+                const originalCanwasWidth = canvas.width;
+                const originalCanwasHeight = canvas.height;
 
                 switch (side) {
                   case ToolPointType.TopLeft:
@@ -433,14 +649,16 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                       }
                     }
 
-                    frame.style.left = `${Math.floor(
+                    movement.style.left = `${Math.floor(
                       event.clientX + deltaX,
                     )}px`;
-                    frame.style.top = `${Math.floor(event.clientY + deltaY)}px`;
-                    frame.style.width = `${Math.floor(
+                    movement.style.top = `${Math.floor(
+                      event.clientY + deltaY,
+                    )}px`;
+                    movement.style.width = `${Math.floor(
                       canvasRectWidth - deltaX,
                     )}px`;
-                    frame.style.height = `${Math.floor(
+                    movement.style.height = `${Math.floor(
                       canvasRectHeight - deltaY,
                     )}px`;
                     canvas.style.left = `${Math.floor(
@@ -476,9 +694,11 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                       }
                     }
 
-                    frame.style.top = `${event.clientY + deltaY}px`;
-                    frame.style.width = `${Math.floor(canvasWidth + deltaX)}px`;
-                    frame.style.height = `${Math.floor(
+                    movement.style.top = `${event.clientY + deltaY}px`;
+                    movement.style.width = `${Math.floor(
+                      canvasWidth + deltaX,
+                    )}px`;
+                    movement.style.height = `${Math.floor(
                       canvasHeight - deltaY,
                     )}px`;
                     canvas.style.top = `${event.clientY + deltaY}px`;
@@ -512,11 +732,13 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                       }
                     }
 
-                    frame.style.left = `${Math.floor(
+                    movement.style.left = `${Math.floor(
                       event.clientX + deltaX,
                     )}px`;
-                    frame.style.width = `${Math.floor(canvasWidth - deltaX)}px`;
-                    frame.style.height = `${Math.floor(
+                    movement.style.width = `${Math.floor(
+                      canvasWidth - deltaX,
+                    )}px`;
+                    movement.style.height = `${Math.floor(
                       canvasHeight + deltaY,
                     )}px`;
                     canvas.style.left = `${Math.floor(
@@ -547,13 +769,29 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                       }
                     }
 
-                    frame.style.width = `${Math.floor(deltaX)}px`;
-                    frame.style.height = `${Math.floor(deltaY)}px`;
+                    movement.style.width = `${Math.floor(deltaX)}px`;
+                    movement.style.height = `${Math.floor(deltaY)}px`;
                     canvas.width = Math.floor(deltaX);
                     canvas.height = Math.floor(deltaY);
 
                     break;
                 }
+
+                corners.forEach((c, i) => {
+                  c[0] =
+                    (canvas.width / originalCanwasWidth) * onStartCorners[i][0];
+                  c[1] =
+                    (canvas.height / originalCanwasHeight) *
+                    onStartCorners[i][1];
+
+                  // if (c[0] < 0) {
+                  //   c[0] += 10;
+                  // }
+
+                  // if (c[1] < 0) {
+                  //   c[1] += 10;
+                  // }
+                });
 
                 ctx = canvas.getContext('2d');
 
@@ -565,6 +803,14 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                   canvas.height,
                 );
             }
+
+            // this.state.currentLayer.corners = [
+            //   [-10, -10],
+            //   [canvas.width - 10, -10],
+            //   [canvas.width / 2 - 10, canvas.height / 2 - 10],
+            //   [-10, canvas.height - 10],
+            //   [canvas.width - 10, canvas.height - 10],
+            // ];
           }),
           takeUntil(mouseUp$),
         );

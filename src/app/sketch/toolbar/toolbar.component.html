@@ -2,26 +2,26 @@
           gapType="vertical">
   <app-grid-tile>
     <app-button size="small"
-                (click)="onToolClick(Tool.Frame)">
-      transform
+                (click)="onToolClick(Tool.Movement)">
+      move
     </app-button>
 
     <app-button size="small"
                 class="mrgn-top-10"
-                (click)="onToolClick(Tool.Distortion)">
-      distortion
+                (click)="onToolClick(Tool.WrapFrame)">
+      wrap
     </app-button>
   </app-grid-tile>
 
   <app-grid-tile display="row">
     <app-button size="small"
-                (click)="onMirrorHorizontalToolClick()">
+                (click)="onFlipHorizontalToolClick()">
       >
     </app-button>
 
     <app-button size="small"
                 class="mrgn-lft-10"
-                (click)="onMirrorVerticalToolClick()">
+                (click)="onFlipVerticalToolClick()">
       ^
     </app-button>
   </app-grid-tile>

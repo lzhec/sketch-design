@@ -24,11 +24,11 @@ export class ToolbarComponent {
     this.state.currentTool$.next(tool);
   }
 
-  public onMirrorVerticalToolClick(): void {
-    this.quickToolEvent.next({ tool: Tool.Mirror, type: 'vertical' });
+  public onFlipVerticalToolClick(): void {
+    this.quickToolEvent.next({ tool: Tool.Flip, type: 'vertical' });
   }
 
-  public onMirrorHorizontalToolClick(): void {
-    this.quickToolEvent.next({ tool: Tool.Mirror, type: 'horizontal' });
+  public onFlipHorizontalToolClick(): void {
+    this.quickToolEvent.next({ tool: Tool.Flip, type: 'horizontal' });
   }
 }

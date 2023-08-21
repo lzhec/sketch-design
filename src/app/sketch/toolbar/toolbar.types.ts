@@ -1,9 +1,10 @@
 export enum Tool {
-  Frame = 'frame',
+  WrapFrame = 'wrap-frame',
   Rotation = 'rotation',
   Resize = 'resize',
-  Distortion = 'distortion',
-  Mirror = 'mirror',
+  Wrap = 'wrap',
+  Flip = 'flip',
+  Movement = 'movement',
 }
 
 export enum ToolPointType {
@@ -15,11 +16,12 @@ export enum ToolPointType {
   BottomRight = 'bottom-right',
   LeftCenter = 'left-center',
   RightCenter = 'right-center',
+  Center = 'center',
 }
 
 export interface QuickToolEvent {
   tool: Tool;
-  type?: MirrorToolType;
+  type?: FlipToolType;
 }
 
-export type MirrorToolType = 'vertical' | 'horizontal';
+export type FlipToolType = 'vertical' | 'horizontal';

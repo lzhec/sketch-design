@@ -11,5 +11,7 @@ export interface Layer {
   originalData: HTMLImageElement;
   originalWidth: number;
   originalHeight: number;
+  corners: [number, number][];
+  originalCorners: [number, number][];
   isHidden: boolean;
 }
