@@ -31,7 +31,6 @@ import {
   FlipToolType,
 } from '../toolbar/toolbar.types';
 import { BaseObject } from '@shared/base/base-object';
-import { utils } from '@shared/utils/wrap';
 
 @Component({
   selector: 'app-canvas',
@@ -302,14 +301,12 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           corners: [
             [-10, -10],
             [layer.width - 10, -10],
-            [layer.width / 2 - 10, layer.height / 2 - 10],
             [-10, layer.height - 10],
             [layer.width - 10, layer.height - 10],
           ],
           originalCorners: [
             [-10, -10],
             [layer.width - 10, -10],
-            [layer.width / 2 - 10, layer.height / 2 - 10],
             [-10, layer.height - 10],
             [layer.width - 10, layer.height - 10],
           ],
@@ -346,59 +343,6 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     );
     const dragMove$ = dragStart$.pipe(
       switchMap(([event, canvas]) => {
-        function updateUI() {
-          function drawTriangle(s1, s2, s3, d1, d2, d3) {
-            const [d1x, d2x, d3x] = utils.expandTriangle(d1, d2, d3, 0.3),
-              [s1x, s2x, s3x] = utils.expandTriangle(s1, s2, s3, 0.3);
-
-            utils.drawImageTriangle(img, ctx, s1x, s2x, s3x, d1x, d2x, d3x);
-          }
-
-          ctx.clearRect(0, 0, w, h);
-
-          drawTriangle(
-            [0, 0],
-            [w / 2, h / 2],
-            [0, h],
-            corners[0],
-            corners[2],
-            corners[3],
-          );
-          //*
-          drawTriangle(
-            [0, 0],
-            [w / 2, h / 2],
-            [w, 0],
-            corners[0],
-            corners[2],
-            corners[1],
-          );
-
-          drawTriangle(
-            [w, 0],
-            [w / 2, h / 2],
-            [w, h],
-            corners[1],
-            corners[2],
-            corners[4],
-          );
-
-          drawTriangle(
-            [0, h],
-            [w / 2, h / 2],
-            [w, h],
-            corners[3],
-            corners[2],
-            corners[4],
-          );
-
-          corners.forEach((c, i) => {
-            const s = handles[i].style;
-            s.left = c[0] + 'px';
-            s.top = c[1] + 'px';
-          });
-        }
-
         const movement =
           this.canvas.nativeElement.querySelector<HTMLDivElement>(
             `[tool="${Tool.Movement}"]`,
@@ -413,8 +357,6 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
         let ctx = canvas.getContext('2d');
         const img = new Image();
         img.src = this.state.currentLayer.originalData.src;
-        let w = img.width,
-          h = img.height;
         let canvasRect = canvas.getBoundingClientRect();
         let side: string;
         let corners = this.state.currentLayer.corners;
@@ -434,17 +376,242 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
             `[tool=${Tool.Wrap}]`,
           );
 
-        // if (!corners) {
-        //   corners = [
-        //     [-10, -10],
-        //     [canvas.width - 10, -10],
-        //     [canvas.width / 2 - 10, canvas.height / 2 - 10],
-        //     [-10, canvas.height - 10],
-        //     [canvas.width - 10, canvas.height - 10],
-        //   ];
-        // }
+        let triangles = [];
+        let dirtyTriangles = true;
 
-        // updateUI();
+        const draw = function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          const render = function (wireframe, img, tri) {
+            if (wireframe) {
+              ctx.strokeStyle = 'black';
+              ctx.beginPath();
+              ctx.moveTo(tri.p0.x, tri.p0.y);
+              ctx.lineTo(tri.p1.x, tri.p1.y);
+              ctx.lineTo(tri.p2.x, tri.p2.y);
+              ctx.lineTo(tri.p0.x, tri.p0.y);
+              ctx.stroke();
+              ctx.closePath();
+            }
+
+            if (img) {
+              drawTriangle(
+                ctx,
+                img,
+                tri.p0.x,
+                tri.p0.y,
+                tri.p1.x,
+                tri.p1.y,
+                tri.p2.x,
+                tri.p2.y,
+                tri.t0.u,
+                tri.t0.v,
+                tri.t1.u,
+                tri.t1.v,
+                tri.t2.u,
+                tri.t2.v,
+              );
+            }
+          };
+
+          if (dirtyTriangles) {
+            dirtyTriangles = false;
+            calculateGeometry();
+          }
+
+          for (let triangle of triangles) {
+            render(false, img, triangle);
+          }
+        };
+
+        const calculateGeometry = function () {
+          // clear triangles out
+          triangles = [];
+
+          // generate subdivision
+          const subs = 7; // vertical subdivisions
+          const divs = 7; // horizontal subdivisions
+
+          const p1 = new Point(
+            +handles[0].style.left.replace('px', '') + 6,
+            +handles[0].style.top.replace('px', '') + 6,
+          );
+          const p2 = new Point(
+            +handles[1].style.left.replace('px', '') + 6,
+            +handles[1].style.top.replace('px', '') + 6,
+          );
+          const p4 = new Point(
+            +handles[2].style.left.replace('px', '') + 6,
+            +handles[2].style.top.replace('px', '') + 6,
+          );
+          const p3 = new Point(
+            +handles[3].style.left.replace('px', '') + 6,
+            +handles[3].style.top.replace('px', '') + 6,
+          );
+
+          const dx1 = p4.x - p1.x;
+          const dy1 = p4.y - p1.y;
+          const dx2 = p3.x - p2.x;
+          const dy2 = p3.y - p2.y;
+
+          const imgW = img.naturalWidth;
+          const imgH = img.naturalHeight;
+
+          for (let sub = 0; sub < subs; ++sub) {
+            const curRow = sub / subs;
+            const nextRow = (sub + 1) / subs;
+
+            const curRowX1 = p1.x + dx1 * curRow;
+            const curRowY1 = p1.y + dy1 * curRow;
+
+            const curRowX2 = p2.x + dx2 * curRow;
+            const curRowY2 = p2.y + dy2 * curRow;
+
+            const nextRowX1 = p1.x + dx1 * nextRow;
+            const nextRowY1 = p1.y + dy1 * nextRow;
+
+            const nextRowX2 = p2.x + dx2 * nextRow;
+            const nextRowY2 = p2.y + dy2 * nextRow;
+
+            for (let div = 0; div < divs; ++div) {
+              const curCol = div / divs;
+              const nextCol = (div + 1) / divs;
+
+              const dCurX = curRowX2 - curRowX1;
+              const dCurY = curRowY2 - curRowY1;
+              const dNextX = nextRowX2 - nextRowX1;
+              const dNextY = nextRowY2 - nextRowY1;
+
+              const p1x = curRowX1 + dCurX * curCol;
+              const p1y = curRowY1 + dCurY * curCol;
+
+              const p2x = curRowX1 + (curRowX2 - curRowX1) * nextCol;
+              const p2y = curRowY1 + (curRowY2 - curRowY1) * nextCol;
+
+              const p3x = nextRowX1 + dNextX * nextCol;
+              const p3y = nextRowY1 + dNextY * nextCol;
+
+              const p4x = nextRowX1 + dNextX * curCol;
+              const p4y = nextRowY1 + dNextY * curCol;
+
+              const u1 = curCol * imgW;
+              const u2 = nextCol * imgW;
+              const v1 = curRow * imgH;
+              const v2 = nextRow * imgH;
+
+              const triangle1 = new Triangle(
+                new Point(p1x, p1y),
+                new Point(p3x, p3y),
+                new Point(p4x, p4y),
+                new TextCoord(u1, v1),
+                new TextCoord(u2, v2),
+                new TextCoord(u1, v2),
+              );
+
+              const triangle2 = new Triangle(
+                new Point(p1x, p1y),
+                new Point(p2x, p2y),
+                new Point(p3x, p3y),
+                new TextCoord(u1, v1),
+                new TextCoord(u2, v1),
+                new TextCoord(u2, v2),
+              );
+
+              triangles.push(triangle1);
+              triangles.push(triangle2);
+            }
+          }
+        };
+
+        const drawTriangle = function (
+          ctx,
+          im,
+          x0,
+          y0,
+          x1,
+          y1,
+          x2,
+          y2,
+          sx0,
+          sy0,
+          sx1,
+          sy1,
+          sx2,
+          sy2,
+        ) {
+          ctx.save();
+
+          ctx.beginPath();
+          ctx.moveTo(x0, y0);
+          ctx.lineTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
+          //ctx.stroke();//xxxxxxx for wireframe
+          ctx.clip();
+
+          const denom =
+            sx0 * (sy2 - sy1) - sx1 * sy2 + sx2 * sy1 + (sx1 - sx2) * sy0;
+          if (denom == 0) {
+            return;
+          }
+          const m11 =
+            -(sy0 * (x2 - x1) - sy1 * x2 + sy2 * x1 + (sy1 - sy2) * x0) / denom;
+          const m12 =
+            (sy1 * y2 + sy0 * (y1 - y2) - sy2 * y1 + (sy2 - sy1) * y0) / denom;
+          const m21 =
+            (sx0 * (x2 - x1) - sx1 * x2 + sx2 * x1 + (sx1 - sx2) * x0) / denom;
+          const m22 =
+            -(sx1 * y2 + sx0 * (y1 - y2) - sx2 * y1 + (sx2 - sx1) * y0) / denom;
+          const dx =
+            (sx0 * (sy2 * x1 - sy1 * x2) +
+              sy0 * (sx1 * x2 - sx2 * x1) +
+              (sx2 * sy1 - sx1 * sy2) * x0) /
+            denom;
+          const dy =
+            (sx0 * (sy2 * y1 - sy1 * y2) +
+              sy0 * (sx1 * y2 - sx2 * y1) +
+              (sx2 * sy1 - sx1 * sy2) * y0) /
+            denom;
+
+          ctx.transform(m11, m12, m21, m22, dx, dy);
+
+          ctx.drawImage(im, 0, 0);
+          ctx.restore();
+        };
+
+        const Point = function (x = 0, y = 0) {
+          this.x = x;
+          this.y = y;
+        };
+
+        const p = Point.prototype;
+
+        p.length = function (point) {
+          point = point ? point : new Point();
+          let xs = 0,
+            ys = 0;
+          xs = point.x - this.x;
+          xs = xs * xs;
+
+          ys = point.y - this.y;
+          ys = ys * ys;
+          return Math.sqrt(xs + ys);
+        };
+
+        const TextCoord = function (u, v) {
+          this.u = u ? u : 0;
+          this.v = v ? v : 0;
+        };
+
+        const Triangle = function (p0, p1, p2, t0, t1, t2) {
+          this.p0 = p0;
+          this.p1 = p1;
+          this.p2 = p2;
+
+          this.t0 = t0;
+          this.t1 = t1;
+          this.t2 = t2;
+        };
 
         return mouseMove$.pipe(
           map((moveEvent: MouseEvent) => ({
@@ -551,13 +718,6 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                       moveEvent.startEvent.pageY;
                     break;
 
-                  case ToolPointType.Center:
-                    deltaX =
-                      moveEvent.originalEvent.pageX - moveEvent.coords.left;
-                    deltaY =
-                      moveEvent.originalEvent.pageY - moveEvent.coords.top;
-                    break;
-
                   case ToolPointType.BottomLeft:
                     deltaX =
                       moveEvent.originalEvent.pageX -
@@ -593,7 +753,7 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
                     break;
 
-                  case 3:
+                  case 2:
                     corners[dataCorner] = [
                       onStartCorners[dataCorner][0] + deltaX,
                       deltaY,
@@ -601,16 +761,18 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
                     break;
 
-                  case 2:
-                  case 4:
+                  case 3:
                     corners[dataCorner] = [deltaX, deltaY];
 
                     break;
                 }
 
+                handles[dataCorner].style.left = corners[dataCorner][0] + 'px';
+                handles[dataCorner].style.top = corners[dataCorner][1] + 'px';
+                dirtyTriangles = true;
                 // this.state.currentLayer.corners = corners;
 
-                updateUI();
+                draw();
 
                 break;
 
@@ -807,7 +969,6 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
             // this.state.currentLayer.corners = [
             //   [-10, -10],
             //   [canvas.width - 10, -10],
-            //   [canvas.width / 2 - 10, canvas.height / 2 - 10],
             //   [-10, canvas.height - 10],
             //   [canvas.width - 10, canvas.height - 10],
             // ];
