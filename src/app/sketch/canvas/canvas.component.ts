@@ -57,6 +57,9 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
     super();
 
     this.state.currentTool$.pipe(takeUntil(this.destroy$)).subscribe((tool) => {
+      if (this.currentTool === tool) {
+        return;
+      }
       this.currentTool = tool;
       // switch (event) {
       //   case 'default':
@@ -70,6 +73,9 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
       const canvas = this.currentCanvas$.value;
 
       if (canvas) {
+        const canvasRect = canvas.getBoundingClientRect();
+        let frame: HTMLDivElement;
+
         switch (tool) {
           case 'wrap-frame':
             const handles: NodeListOf<HTMLDivElement> =
@@ -77,22 +83,33 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                 `[tool="${Tool.Wrap}"]`,
               );
 
-            const frame =
-              this.canvas.nativeElement.querySelector<HTMLDivElement>(
-                `[tool="${Tool.WrapFrame}"]`,
-              );
+            frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+              `[tool="${Tool.WrapFrame}"]`,
+            );
 
-            let canvasRect = canvas.getBoundingClientRect();
+            this.state.currentLayer.corners.forEach((corner, index) => {
+              handles[index].style.left = corner[0] + 'px';
+              handles[index].style.top = corner[1] + 'px';
+            });
 
             frame.style.left = `${canvasRect.left}px`;
             frame.style.top = `${canvasRect.top}px`;
             frame.style.width = `${canvasRect.width}px`;
             frame.style.height = `${canvasRect.height}px`;
 
-            this.state.currentLayer.corners.forEach((corner, index) => {
-              handles[index].style.left = corner[0] + 'px';
-              handles[index].style.top = corner[1] + 'px';
-            });
+            break;
+
+          case 'movement':
+            frame = this.canvas.nativeElement.querySelector<HTMLDivElement>(
+              `[tool="${Tool.Movement}"]`,
+            );
+
+            frame.style.left = `${canvasRect.left}px`;
+            frame.style.top = `${canvasRect.top}px`;
+            frame.style.width = `${canvasRect.width}px`;
+            frame.style.height = `${canvasRect.height}px`;
+
+            break;
         }
       }
     });
@@ -425,12 +442,9 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
         };
 
         const calculateGeometry = function () {
-          // clear triangles out
           triangles = [];
-
-          // generate subdivision
-          const subs = 7; // vertical subdivisions
-          const divs = 7; // horizontal subdivisions
+          const subs = 7;
+          const divs = 7;
 
           const p1 = new Point(
             +handles[0].style.left.replace('px', '') + 6,
@@ -460,58 +474,48 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           for (let sub = 0; sub < subs; ++sub) {
             const curRow = sub / subs;
             const nextRow = (sub + 1) / subs;
-
             const curRowX1 = p1.x + dx1 * curRow;
             const curRowY1 = p1.y + dy1 * curRow;
-
             const curRowX2 = p2.x + dx2 * curRow;
             const curRowY2 = p2.y + dy2 * curRow;
-
             const nextRowX1 = p1.x + dx1 * nextRow;
             const nextRowY1 = p1.y + dy1 * nextRow;
-
             const nextRowX2 = p2.x + dx2 * nextRow;
             const nextRowY2 = p2.y + dy2 * nextRow;
 
             for (let div = 0; div < divs; ++div) {
               const curCol = div / divs;
               const nextCol = (div + 1) / divs;
-
               const dCurX = curRowX2 - curRowX1;
               const dCurY = curRowY2 - curRowY1;
               const dNextX = nextRowX2 - nextRowX1;
               const dNextY = nextRowY2 - nextRowY1;
-
               const p1x = curRowX1 + dCurX * curCol;
               const p1y = curRowY1 + dCurY * curCol;
-
               const p2x = curRowX1 + (curRowX2 - curRowX1) * nextCol;
               const p2y = curRowY1 + (curRowY2 - curRowY1) * nextCol;
-
               const p3x = nextRowX1 + dNextX * nextCol;
               const p3y = nextRowY1 + dNextY * nextCol;
-
               const p4x = nextRowX1 + dNextX * curCol;
               const p4y = nextRowY1 + dNextY * curCol;
-
               const u1 = curCol * imgW;
               const u2 = nextCol * imgW;
               const v1 = curRow * imgH;
               const v2 = nextRow * imgH;
 
               const triangle1 = new Triangle(
-                new Point(p1x, p1y),
-                new Point(p3x, p3y),
-                new Point(p4x, p4y),
+                new Point(p1x - 1, p1y),
+                new Point(p3x + 2, p3y + 1),
+                new Point(p4x - 1, p4y + 1),
                 new TextCoord(u1, v1),
                 new TextCoord(u2, v2),
                 new TextCoord(u1, v2),
               );
 
               const triangle2 = new Triangle(
-                new Point(p1x, p1y),
-                new Point(p2x, p2y),
-                new Point(p3x, p3y),
+                new Point(p1x - 2, p1y),
+                new Point(p2x + 1, p2y),
+                new Point(p3x + 1, p3y + 1),
                 new TextCoord(u1, v1),
                 new TextCoord(u2, v1),
                 new TextCoord(u2, v2),
@@ -546,14 +550,16 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           ctx.lineTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.closePath();
-          //ctx.stroke();//xxxxxxx for wireframe
+          // ctx.stroke(); //xxxxxxx for wireframe
           ctx.clip();
 
           const denom =
             sx0 * (sy2 - sy1) - sx1 * sy2 + sx2 * sy1 + (sx1 - sx2) * sy0;
+
           if (denom == 0) {
             return;
           }
+
           const m11 =
             -(sy0 * (x2 - x1) - sy1 * x2 + sy2 * x1 + (sy1 - sy2) * x0) / denom;
           const m12 =
@@ -588,11 +594,10 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
 
         p.length = function (point) {
           point = point ? point : new Point();
-          let xs = 0,
-            ys = 0;
+          let xs = 0;
+          let ys = 0;
           xs = point.x - this.x;
           xs = xs * xs;
-
           ys = point.y - this.y;
           ys = ys * ys;
           return Math.sqrt(xs + ys);
@@ -607,7 +612,6 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
           this.p0 = p0;
           this.p1 = p1;
           this.p2 = p2;
-
           this.t0 = t0;
           this.t1 = t1;
           this.t2 = t2;
