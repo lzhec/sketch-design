@@ -31,6 +31,7 @@ import {
   FlipToolType,
 } from '../toolbar/toolbar.types';
 import { BaseObject } from '@shared/base/base-object';
+import { findExtremes } from '@shared/helpers/functions';
 
 @Component({
   selector: 'app-canvas',
@@ -775,6 +776,26 @@ export class CanvasComponent extends BaseObject implements AfterViewInit {
                 handles[dataCorner].style.top = corners[dataCorner][1] + 'px';
                 dirtyTriangles = true;
                 // this.state.currentLayer.corners = corners;
+
+                // const leftCoords = [];
+                // const topCoords = [];
+
+                // handles.forEach((p) => {
+                //   leftCoords.push(p.offsetLeft);
+                //   topCoords.push(p.offsetTop);
+                // });
+
+                // const leftExtremes = findExtremes(leftCoords);
+                // const topExtremes = findExtremes(topCoords);
+
+                // wrapFrame.style.left = `${leftExtremes.min}px`;
+                // wrapFrame.style.top = `${topExtremes.min}px`;
+                // wrapFrame.style.width = `${
+                //   leftExtremes.max - leftExtremes.min
+                // }px`;
+                // wrapFrame.style.height = `${
+                //   topExtremes.max - topExtremes.min
+                // }px`;
 
                 draw();
 
